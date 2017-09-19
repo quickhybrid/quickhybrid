@@ -78,6 +78,36 @@ function compareVersion(version1, version2) {
  * 暂时不考虑只遍历一部分的性能问题，因为在应用场景内是微不足道的
  */
 
+
+/**
+ * 得到一个项目的根路径
+ * h5模式下例如:http://id:端口/项目名/
+ * @return {String} 项目的根路径
+ */
+
+
+/**
+ * 将相对路径转为绝对路径 ./ ../ 开头的  为相对路径
+ * 会基于对应调用js的html路径去计算
+ * @param {String} path 需要转换的路径
+ * @return {String} 返回转换后的路径
+ */
+
+
+/**
+ * 得到一个全路径
+ * @param {String} path 路径
+ * @return {String} 返回最终的路径
+ */
+
+
+/**
+ * 将json参数拼接到url中
+ * @param {String} url url地址
+ * @param {Object} data 需要添加的json数据
+ * @return {String} 返回最终的url
+ */
+
 var globalError = {
 
     /**
@@ -230,7 +260,7 @@ function initMixin(hybridJs) {
      * @param {Nunber} code 错误代码
      * @param {String} msg 错误提示
      */
-    function errorTips() {
+    function showError() {
         var code = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
         var msg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '错误!';
 
@@ -248,18 +278,18 @@ function initMixin(hybridJs) {
      */
     function checkEnvAndPrompt() {
         if (!quick.runtime || !quick.runtime.getQuickVersion) {
-            errorTips(globalError.ERROR_TYPE_VERSIONNOTSUPPORT.code, globalError.ERROR_TYPE_VERSIONNOTSUPPORT.msg);
+            showError(globalError.ERROR_TYPE_VERSIONNOTSUPPORT.code, globalError.ERROR_TYPE_VERSIONNOTSUPPORT.msg);
         } else {
             quick.runtime.getQuickVersion({
                 success: function success(result) {
                     var version = result.version;
 
                     if (compareVersion(quick.version, version) < 0) {
-                        quick.errorTips(globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.code, globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.msg);
+                        showError(globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.code, globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.msg);
                     }
                 },
                 error: function error() {
-                    errorTips(globalError.ERROR_TYPE_INITVERSIONERROR.code, globalError.ERROR_TYPE_INITVERSIONERROR.msg);
+                    showError(globalError.ERROR_TYPE_INITVERSIONERROR.code, globalError.ERROR_TYPE_INITVERSIONERROR.msg);
                 }
             });
         }
@@ -274,7 +304,7 @@ function initMixin(hybridJs) {
      */
     quick.config = function config(params) {
         if (isConfig) {
-            errorTips(globalError.ERROR_TYPE_CONFIGMODIFY.code, globalError.ERROR_TYPE_CONFIGMODIFY.msg);
+            showError(globalError.ERROR_TYPE_CONFIGMODIFY.code, globalError.ERROR_TYPE_CONFIGMODIFY.msg);
         } else {
             isConfig = true;
 
@@ -299,7 +329,7 @@ function initMixin(hybridJs) {
                     error: function error(_error) {
                         var tips = _error ? JSON.stringify(_error) : globalError.ERROR_TYPE_CONFIGERROR.msg;
 
-                        errorTips(globalError.ERROR_TYPE_CONFIGERROR.code, tips);
+                        showError(globalError.ERROR_TYPE_CONFIGERROR.code, tips);
                     }
                 }, params));
             } else {
@@ -324,7 +354,7 @@ function initMixin(hybridJs) {
                 readyFunc();
             }
         } else {
-            errorTips(globalError.ERROR_TYPE_READYMODIFY.code, globalError.ERROR_TYPE_READYMODIFY.msg);
+            showError(globalError.ERROR_TYPE_READYMODIFY.code, globalError.ERROR_TYPE_READYMODIFY.msg);
         }
     };
 
@@ -338,6 +368,8 @@ function initMixin(hybridJs) {
     quick.error = function error(callback) {
         errorFunc = callback;
     };
+
+    quick.showError = showError;
 }
 
 /**

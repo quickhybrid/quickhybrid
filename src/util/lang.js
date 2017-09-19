@@ -64,10 +64,96 @@ export function eclipseText(str = '', count = 6) {
     const LEN_CHINESE = 2;
     const LEN_ENGLISH = 1;
     let num = 0;
-    
+
     return str.split('').filter((ch) => {
         num += /[\u4e00-\u9fa5]/.test(ch) ? LEN_CHINESE : LEN_ENGLISH;
-        
+
         return num <= count;
     }).join('');
+}
+
+/**
+ * 得到一个项目的根路径
+ * h5模式下例如:http://id:端口/项目名/
+ * @return {String} 项目的根路径
+ */
+export function getProjectBasePath() {
+    const locObj = window.location;
+    const patehName = locObj.pathname;
+    const pathArray = patehName.split('/');
+    // 如果是 host/xxx.html 则是/，如果是host/project/xxx.html,则是project/
+    const contextPath = pathArray.length > 2 ? `${pathArray[1]}/` : '';
+
+    return `${locObj.protocol}//${locObj.host}/${contextPath}`;
+}
+
+/**
+ * 将相对路径转为绝对路径 ./ ../ 开头的  为相对路径
+ * 会基于对应调用js的html路径去计算
+ * @param {String} path 需要转换的路径
+ * @return {String} 返回转换后的路径
+ */
+export function changeRelativePathToAbsolute(path) {
+    const locObj = window.location;
+    const patehName = locObj.pathname;
+    // 匹配相对路径返回父级的个数
+    const relatives = path.match(/\.\.\//g);
+    const count = (relatives && relatives.length) || 0;
+    // 将patehName拆为数组，然后计算当前的父路径，需要去掉相应相对路径的层级
+    const pathArray = patehName.split('/');
+    const parentPath = pathArray.slice(0, pathArray.length - (count + 1)).join('/');
+    const childPath = path.replace(/\.+\//g, '');
+    // 找到最后的路径， 通过正则 去除 ./ 之前的所有路径
+    let finalPath = `${parentPath}/${childPath}`;
+
+    finalPath = `${locObj.protocol}//${locObj.host}${finalPath}`;
+
+    return finalPath;
+}
+
+/**
+ * 得到一个全路径
+ * @param {String} path 路径
+ * @return {String} 返回最终的路径
+ */
+export function getFullPath(path) {
+    // 全路径
+    if (/^(http|https|ftp|\/\/)/g.test(path)) {
+        return path;
+    }
+
+    // 是否是相对路径
+    const isRelative = /(\.\/)|(\.\.\/)/.test(path);
+
+    if (isRelative) {
+        return changeRelativePathToAbsolute(path);
+    }
+
+    return `${getProjectBasePath()}${path}`;
+}
+
+/**
+ * 将json参数拼接到url中
+ * @param {String} url url地址
+ * @param {Object} data 需要添加的json数据
+ * @return {String} 返回最终的url
+ */
+export function getFullUrlByParams(url = '', data) {
+    let fullUrl = getFullPath(url);
+    let extrasDataStr = '';
+    
+    if (data) {
+        Object.keys(data).forEach((item) => {
+            if (extrasDataStr.indexOf('?') === -1 && fullUrl.indexOf('?') === -1) {
+                extrasDataStr += '?';
+            } else {
+                extrasDataStr += '&';
+            }
+            extrasDataStr += `${item}=${data[item]}`;
+        });
+    }
+
+    fullUrl += extrasDataStr;
+
+    return fullUrl;
 }

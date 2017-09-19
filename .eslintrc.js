@@ -1,7 +1,7 @@
 // http://eslint.org/docs/user-guide/configuring
 
 module.exports = {
-    'root': true,    
+    'root': true,
     'extends': "airbnb",
     "parser": "babel-eslint",
     'parserOptions': {
@@ -37,12 +37,16 @@ module.exports = {
         // 允许++和--
         //'no-plusplus': 0,        
         // 文件末尾强制换行，目前暂时放弃，考虑到一些Idle的格式化问题
-        'eol-last': 0,       
+        'eol-last': 0,
         //强制使用一致的缩进，4个空格
         'indent': [2, 4, {
             'SwitchCase': 1
         }],
-                
+        // 允许特殊的_开头属性
+        'no-underscore-dangle': [2, {
+            "allow": ["_handleMessageFromNative"]
+        }],
+
         // 以下是一些与airbnb无关的修改配置
         // recommend的修改
         //  禁用行尾空格,允许空行使用空白符
@@ -51,7 +55,9 @@ module.exports = {
         }],
         // 其它的重写
         // 允许逻辑与短路语句，不重写会报错，应该是拓展规则里的
-        'no-unused-expressions': [2, {'allowShortCircuit': true}],
+        'no-unused-expressions': [2, {
+            'allowShortCircuit': true
+        }],
         // 禁用 console，目前console变为警告级别
         'no-console': 0,
         // 函数的()前可以没有空格

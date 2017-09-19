@@ -22,7 +22,7 @@ export default function initMixin(hybridJs) {
      * @param {Nunber} code 错误代码
      * @param {String} msg 错误提示
      */
-    function errorTips(code = 0, msg = '错误!') {
+    function showError(code = 0, msg = '错误!') {
         warn(`code:${code}, msg:${msg}`);
         errorFunc && errorFunc({
             code,
@@ -37,7 +37,7 @@ export default function initMixin(hybridJs) {
      */
     function checkEnvAndPrompt() {
         if ((!quick.runtime || !quick.runtime.getQuickVersion)) {
-            errorTips(
+            showError(
                 globalError.ERROR_TYPE_VERSIONNOTSUPPORT.code,
                 globalError.ERROR_TYPE_VERSIONNOTSUPPORT.msg);
         } else {
@@ -46,13 +46,13 @@ export default function initMixin(hybridJs) {
                     const version = result.version;
 
                     if (compareVersion(quick.version, version) < 0) {
-                        quick.errorTips(
+                        showError(
                             globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.code,
                             globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.msg);
                     }
                 },
                 error: () => {
-                    errorTips(
+                    showError(
                         globalError.ERROR_TYPE_INITVERSIONERROR.code,
                         globalError.ERROR_TYPE_INITVERSIONERROR.msg);
                 },
@@ -69,7 +69,7 @@ export default function initMixin(hybridJs) {
      */
     quick.config = function config(params) {
         if (isConfig) {
-            errorTips(
+            showError(
                 globalError.ERROR_TYPE_CONFIGMODIFY.code,
                 globalError.ERROR_TYPE_CONFIGMODIFY.msg);
         } else {
@@ -98,7 +98,7 @@ export default function initMixin(hybridJs) {
                             ? JSON.stringify(error)
                             : globalError.ERROR_TYPE_CONFIGERROR.msg;
                         
-                        errorTips(
+                        showError(
                             globalError.ERROR_TYPE_CONFIGERROR.code,
                             tips);
                     },
@@ -125,7 +125,7 @@ export default function initMixin(hybridJs) {
                 readyFunc();
             }
         } else {
-            errorTips(
+            showError(
                 globalError.ERROR_TYPE_READYMODIFY.code,
                 globalError.ERROR_TYPE_READYMODIFY.msg);
         }
@@ -141,4 +141,6 @@ export default function initMixin(hybridJs) {
     quick.error = function error(callback) {
         errorFunc = callback;
     };
+    
+    quick.showError = showError;
 }

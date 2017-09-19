@@ -67,9 +67,9 @@ module.exports = {
                     // 因为配置文件是给rollup使用的，如果加入这个放污染原本的打包文件
                     // 而这个webpack仅做单测用
                     plugins: [
-                        "istanbul",
+                        'istanbul',
                     ],
-                },               
+                },
             }],
         },
     },

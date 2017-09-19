@@ -5,6 +5,10 @@ import {
     eclipseText,
     noop,
     getNow,
+    getProjectBasePath,
+    changeRelativePathToAbsolute,
+    getFullPath,
+    getFullUrlByParams,
 } from '../src/util/lang';
 
 describe('extend方法', () => {
@@ -123,5 +127,40 @@ describe('eclipseText', () => {
     
     it('截取5位字符', () => {
         expect(eclipseText(targetStr, 5)).to.be.equal('abc测');
+    });
+});
+
+describe('getProjectBasePath', () => {
+    it('基本路径匹配正则', () => {
+        expect(getProjectBasePath()).to.satisfy(basePath => (/^(https?):[/]{2}[\w-]+(\.[\w-]+)*:[\d]{1,10}[/]([^/]+[/])*/.test(basePath)));
+    });
+});
+
+describe('changeRelativePathToAbsolute', () => {
+    it('相对路径匹配', () => {
+        expect(changeRelativePathToAbsolute('./abc/d.html')).to.satisfy(currPath => (currPath === `${getProjectBasePath()}abc/d.html`));
+    });
+});
+
+describe('getFullPath', () => {
+    it('相对路径匹配', () => {
+        expect(getFullPath('./abc/d.html')).to.satisfy(currPath => (currPath === `${getProjectBasePath()}abc/d.html`));
+    });
+    
+    it('网络路径匹配', () => {
+        expect(getFullPath('http://www.baidu.com')).to.satisfy(currPath => (currPath === 'http://www.baidu.com'));
+    });
+    
+    it('基于根路径的相对路径', () => {
+        expect(getFullPath('abc/d.html')).to.satisfy(currPath => (currPath === `${getProjectBasePath()}abc/d.html`));
+    });
+});
+
+describe('getFullUrlByParams', () => {
+    it('判断参数是否正确拼接', () => {
+        expect(getFullUrlByParams('abc.html', {
+            a: 1,
+            b: 2,
+        })).to.satisfy(finalUrl => (finalUrl === `${getProjectBasePath()}abc.html?a=1&b=2`));
     });
 });
