@@ -18,7 +18,7 @@ describe('注册H5本地函数', () => {
     it('触发已注册的本地函数', (done) => {
         callback = function innerCallback(innerData) {
             console.log(innerData);
-            console.log("~");
+            console.log('~');
             expect(1).to.be.equal(1);
             done();
         };
@@ -28,6 +28,6 @@ describe('注册H5本地函数', () => {
         ejs.JSBridge._handleMessageFromNative({
             handlerName,
             data,
-        });      
+        });
     });
 });
