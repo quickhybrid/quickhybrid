@@ -1,52 +1,53 @@
 import { expect } from 'chai';
+import oldQuick from '../src/index';
 import initMixin from '../src/core/init';
 import osMixin from '../src/core/os';
 
-let ejs;
+let quick;
 
 describe('H5下的config', () => {
     before(() => {
-        ejs = {};
-        initMixin(ejs);
-        osMixin(ejs);
+        quick = oldQuick;
+        initMixin(quick);
+        osMixin(quick);
     });
     
     it('正常的ready', () => {
-        ejs.config();
+        quick.config();
 
-        ejs.ready(() => {
+        quick.ready(() => {
             expect(1).to.be.equal(1);
         });
     });
     
     it('H5多次config', () => {
-        ejs.error(() => {
+        quick.error(() => {
             expect(1).to.be.equal(1);
         });
         
-        ejs.config();
+        quick.config();
     });
     
     it('H5多次ready', () => {
-        ejs.error(() => {
+        quick.error(() => {
             expect(1).to.be.equal(1);
         });
         
-        ejs.ready();
+        quick.ready();
     });
 });
 
 describe('先ready再config', () => {
     before(() => {
-        ejs = {};
-        initMixin(ejs);
-        osMixin(ejs);
+        quick = oldQuick;
+        initMixin(quick);
+        osMixin(quick);
     });
     
     it('正常ready成功', () => {
-        ejs.ready(() => {
+        quick.ready(() => {
             expect(1).to.be.equal(1);
         });
-        ejs.config();
+        quick.config();
     });
 });

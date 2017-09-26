@@ -7,6 +7,11 @@ export default function jsbridgeMixin(hybridJs) {
     const quick = hybridJs;
     // 定义一个JSBridge
     const JSBridge = {};
+    
+    // 声明依赖
+    const showError = quick.showError;
+    const globalError = quick.globalError;
+    const os = quick.os;
 
     quick.JSBridge = JSBridge;
 
@@ -14,16 +19,14 @@ export default function jsbridgeMixin(hybridJs) {
     const CUSTOM_PROTOCOL_SCHEME = 'QuickHybridJSBridge';
     // 本地注册的方法集合,原生只能调用本地注册的方法,否则会提示错误
     const messageHandlers = {};
-    // 当原生调用H5注册的方法时,强行变为异步(类似于单独开线程)
-    const dispatchMessagesWithTimeoutSafety = true;
     // 短期回调函数集合
     // 在原生调用完对应的方法后,会执行对应的回调函数id，并删除
     const responseCallbacks = {};
     // 长期存在的回调，调用后不会删除
     const responseCallbacksLongTerm = {};
 
-    // 唯一id,用来确保长期回调的唯一性
-    let uniqueLongCallbackId = 10000000;
+    // 唯一id,用来确保长期回调的唯一性，初始化为最大值
+    let uniqueLongCallbackId = 2147483647;
 
     function warn(msg) {
         console.error(`[JSBridge Error]:${msg}`);
@@ -34,17 +37,8 @@ export default function jsbridgeMixin(hybridJs) {
      * @return {Number} 返回一个随机的短期回调id
      */
     function getCallbackId() {
-        const MAX_VALUE = 2147483647;
-        const MAX_LONG_CALLBACK_COUNT = 1000;
-        const random = Math.floor(Math.random() * MAX_VALUE);
-
-        if (Math.abs(random - uniqueLongCallbackId) > MAX_LONG_CALLBACK_COUNT) {
-            // 如果满足要求，不能和长期回调重合，目前保留MAX_LONG_CALLBACK_COUNT个长期回调
-            return `${random}`;
-        }
-
-        // 重新生成
-        return getCallbackId();
+        // 确保每次都不会和长期id相同
+        return Math.floor(Math.random() * uniqueLongCallbackId);
     }
 
     /**
@@ -53,11 +47,11 @@ export default function jsbridgeMixin(hybridJs) {
      * @return {String} 转为字符串后的结果
      */
     function getParam(data) {
-        if (typeof data === 'object') {
+        if (typeof data !== 'string') {
             return JSON.stringify(data);
         }
-        
-        return data || '';
+
+        return data;
     }
 
     /**
@@ -99,7 +93,7 @@ export default function jsbridgeMixin(hybridJs) {
      */
     function doSend(proto, message, responseCallback) {
         const newMessage = message;
-        
+
         if (typeof responseCallback === 'function') {
             // 如果传入的回调时函数，需要给它生成id
             // 取到一个唯一的callbackid
@@ -112,13 +106,13 @@ export default function jsbridgeMixin(hybridJs) {
             // 如果传入时已经是id，代表已经在回调池中了，直接使用即可
             newMessage.callbackId = responseCallback;
         }
-
+        
         // 获取 触发方法的url scheme
         const uri = getUri(proto, newMessage);
 
-        if (quick.os.quick) {
-            // 依赖于quick对象的os判断
-            if (quick.os.ios) {
+        if (os.quick) {
+            // 依赖于os判断
+            if (os.ios) {
                 // ios采用
                 window.webkit.messageHandlers.WKWebViewJavascriptBridge.postMessage(uri);
             } else {
@@ -156,7 +150,7 @@ export default function jsbridgeMixin(hybridJs) {
      * @return {Number} 返回长期回调id
      */
     JSBridge.getLongCallbackId = function getLongCallbackId() {
-        uniqueLongCallbackId += 1;
+        uniqueLongCallbackId -= 1;
         
         return uniqueLongCallbackId;
     };
@@ -194,9 +188,9 @@ export default function jsbridgeMixin(hybridJs) {
                     message = messageJSON;
                 }
             } catch (e) {
-                quick.showError(
-                    quick.globalError.ERROR_TYPE_NATIVECALL.code,
-                    quick.globalError.ERROR_TYPE_NATIVECALL.msg);
+                showError(
+                    globalError.ERROR_TYPE_NATIVECALL.code,
+                    globalError.ERROR_TYPE_NATIVECALL.msg);
 
                 return;
             }
@@ -228,12 +222,7 @@ export default function jsbridgeMixin(hybridJs) {
             }
         }
         
-        if (dispatchMessagesWithTimeoutSafety) {
-            setTimeout(doDispatchMessageFromNative);
-            
-            setTimeout(doDispatchMessageFromNative);
-        } else {
-            doDispatchMessageFromNative();
-        }
+        // 使用异步
+        setTimeout(doDispatchMessageFromNative);
     };
 }

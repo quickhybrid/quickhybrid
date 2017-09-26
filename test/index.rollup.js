@@ -4,4 +4,4 @@
 import './init.spec';
 import './lang.spec';
 import './os.spec';
-import './jsbridge.spec.js';
+import './jsbridge.spec';

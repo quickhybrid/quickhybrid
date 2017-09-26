@@ -1,13 +1,11 @@
 import { warn, log } from '../util/debug';
 import { extend, compareVersion } from '../util/lang';
-import globalError from '../inner/globalerror';
-
 /**
  * 初始化给配置全局函数
  */
 export default function initMixin(hybridJs) {
     const quick = hybridJs;
-    
+    const globalError = quick.globalError;
     /**
      * 几个全局变量 用来控制全局的config与ready逻辑
      * 默认ready是false的

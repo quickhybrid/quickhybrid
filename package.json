@@ -2,7 +2,7 @@
   "name": "quickhybrid",
   "version": "0.0.1",
   "description": "快速混合开发框架，一套JS Api，Android，iOS，浏览器环境同时运行",
-  "homepage": "https://github.com/quickhybrid/quickhybrid", 
+  "homepage": "https://github.com/quickhybrid/quickhybrid",
   "repository": {
     "type": "git",
     "url": "https://github.com/quickhybrid/quickhybrid.git"
@@ -36,6 +36,7 @@
     "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-runtime": "^6.26.0",
     "chai": "^4.1.2",
     "eslint": "^4.6.1",
     "eslint-config-airbnb": "^15.1.0",
