@@ -3,7 +3,7 @@ import {
     noop,
 } from '../src/util/lang';
 import quick from '../src/index';
-import jsbridgeMixin from '../src/jsbridge/jsbridge';
+import jsbridgeMixin from '../src/core/jsbridge';
 
 jsbridgeMixin(quick);
 

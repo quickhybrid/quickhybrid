@@ -42,7 +42,7 @@ const buildOptions = [{
         // 输出文件的umd必须要，否则watch监控失败
         format: 'umd',
     },
-    name: 'ejs',
+    name: 'quick',
     plugins: [
         // 请先使用eslint，因为要在为编译前检测
         eslint({
@@ -64,7 +64,7 @@ const buildOptions = [{
         // 输出文件的umd必须要，否则watch监控失败
         format: 'umd',
     },
-    name: 'ejs',
+    name: 'quick',
     plugins: [
         babel({
             // only transpile our source code

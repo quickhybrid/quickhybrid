@@ -1,32 +1,22 @@
-import { warn, log } from '../util/debug';
+import { log } from '../util/debug';
 import { extend, compareVersion } from '../util/lang';
+
 /**
  * 初始化给配置全局函数
  */
 export default function initMixin(hybridJs) {
     const quick = hybridJs;
     const globalError = quick.globalError;
+    const showError = quick.showError;
+    const JSBridge = quick.JSBridge;
+    
     /**
      * 几个全局变量 用来控制全局的config与ready逻辑
      * 默认ready是false的
      */
-    let errorFunc;
     let readyFunc;
     let isAllowReady = false;
     let isConfig = false;
-    
-    /**
-     * 提示全局错误
-     * @param {Nunber} code 错误代码
-     * @param {String} msg 错误提示
-     */
-    function showError(code = 0, msg = '错误!') {
-        warn(`code:${code}, msg:${msg}`);
-        errorFunc && errorFunc({
-            code,
-            message: msg,
-        });
-    }
     
     /**
      * 检查环境是否合法，包括
@@ -76,6 +66,7 @@ export default function initMixin(hybridJs) {
             const success = () => {
                 // 如果这时候有ready回调
                 if (readyFunc) {
+                    log('ready!');
                     readyFunc();
                 } else {
                     // 允许ready直接执行
@@ -108,7 +99,7 @@ export default function initMixin(hybridJs) {
     };
     
     /**
-     *  初始化完毕，并且config验证完毕后会触发这个回调
+     * 初始化完毕，并且config验证完毕后会触发这个回调
      * 注意，只有config了，才会触发ready，否则无法触发
      * ready只会触发一次，所以如果同时设置两个，第二个ready回调会无效
      * @param {Function} callback 回调函数
@@ -130,15 +121,9 @@ export default function initMixin(hybridJs) {
     };
     
     /**
-     * 当出现错误时，会通过这个函数回调给开发者，可以拿到里面的提示信息
-     * @param {Function} callback 开发者设置的回调(每次会监听一个全局error函数)
-     * 回调的参数好似
-     * msg 错误信息
-     * code 错误码
+     * 注册接收原生的错误信息
      */
-    quick.error = function error(callback) {
-        errorFunc = callback;
-    };
-    
-    quick.showError = showError;
+    JSBridge.registerHandler('handleError', (data) => {
+        showError(globalError.ERROR_TYPE_NATIVE.code, JSON.stringify(data));
+    });
 }

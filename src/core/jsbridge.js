@@ -1,7 +1,6 @@
 /**
  * h5和原生交互，jsbridge核心代码
- * native-api文件中用到
- * 这个文件尽量保持独立比依赖于其它工具
+ * 依赖于showError，globalError，os
  */
 export default function jsbridgeMixin(hybridJs) {
     const quick = hybridJs;

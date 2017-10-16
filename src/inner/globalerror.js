@@ -1,4 +1,4 @@
-const globalError = {
+export default {
 
     /**
      * 1001 api os错误
@@ -129,9 +129,3 @@ const globalError = {
         msg: '未知错误',
     },
 };
-
-export default function globalerrorMixin(hybridJs) {
-    const quick = hybridJs;
-    
-    quick.globalError = globalError;
-}
