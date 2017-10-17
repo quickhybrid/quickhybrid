@@ -63,6 +63,15 @@ describe('拓展模块', () => {
         quick.test.foo();
     });
     
+    it('拓展一个测试模块，不传os并调用', () => {
+        quick.os.h5 = false;
+        quick.extendModule('test', [{
+            namespace: 'foo2',
+        }]);
+        
+        quick.test.foo2();
+    });
+    
     it('拓展模块，不加参数', () => {
         quick.extendModule('test');
     });
@@ -127,11 +136,11 @@ describe('拓展API', () => {
         quick.test2[`api${index}`] = 'sss';
     });
     
-    it('拓展一个API,无runcode,重新定义defaultCall', (done) => {
+    it('拓展一个API,无runcode,重新定义callInner', (done) => {
         const params = {
             testKey2: 'test2',
         };
-        quick.defaultCall = (options) => {
+        quick.callInner = (options) => {
             expect(options).to.be.equal(params);       
             done();
         };

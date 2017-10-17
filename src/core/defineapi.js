@@ -10,7 +10,7 @@ import {
  * Proxy
  * globalError
  * showError
- * defaultCall
+ * callInner
  */
 export default function defineapiMixin(hybridJs) {
     const quick = hybridJs;
@@ -18,7 +18,7 @@ export default function defineapiMixin(hybridJs) {
     const globalError = quick.globalError;
     const showError = quick.showError;
     const os = quick.os;
-    const defaultCall = quick.defaultCall;
+    const callInner = quick.callInner;
 
     /**
      * 存放所有的代理 api对象
@@ -160,9 +160,9 @@ export default function defineapiMixin(hybridJs) {
         // 一个新的API代理，会替换以前API命名空间中对应的内容
         let apiRuncode = api.runCode;
 
-        if (!apiRuncode && defaultCall) {
-            // 如果没有runcode，默认使用quick的defaultCall
-            apiRuncode = defaultCall;
+        if (!apiRuncode && callInner) {
+            // 如果没有runcode，默认使用quick的callInner
+            apiRuncode = callInner;
         }
 
         const newApiProxy = new Proxy(api, apiRuncode);
@@ -172,7 +172,7 @@ export default function defineapiMixin(hybridJs) {
         proxysApis[finalNameSpace] = {};
 
         supportOsArray.forEach((osTmp) => {
-            if (api.os.indexOf(osTmp) !== -1) {
+            if (api.os && api.os.indexOf(osTmp) !== -1) {
                 // 如果存在这个os，并且合法，重新定义
                 proxysApis[finalNameSpace][osTmp] = newApiProxy;
                 oldProxyOsNotUse[osTmp] = true;
@@ -180,7 +180,7 @@ export default function defineapiMixin(hybridJs) {
                 // 否则仍然使用老版本的代理
                 proxysApis[finalNameSpace][osTmp] = oldProxyNamespace[osTmp];
                 // api本身的os要添加这个环境，便于提示
-                api.os.push(osTmp);
+                api.os && api.os.push(osTmp);
             }
         });
 

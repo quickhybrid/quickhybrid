@@ -20,7 +20,8 @@ export default function proxyMixin(hybridJs) {
      * 实际的代理操作
      */
     Proxy.prototype.walk = function walk() {
-        const Promise = quick.Promise;
+        // 实时获取promise
+        const Promise = quick.getPromise();
         
         // 返回一个闭包函数
         return (...args) => {

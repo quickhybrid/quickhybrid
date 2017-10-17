@@ -1,14 +1,16 @@
 import {
     extend,
 } from '../util/lang';
+import generateJSBridgeTrigger from '../inner/triggerjsbridge';
 
 /**
  * 如果api没有runcode，应该有一个默认的实现
  */
-export default function defaultcallMixin(hybridJs) {
+export default function callinnerMixin(hybridJs) {
     const quick = hybridJs;
     const os = quick.os;
-    const calljsbridgeMixin = quick.calljsbridgeMixin;
+    const JSBridge = quick.JSBridge;
+    const callJsBridge = generateJSBridgeTrigger(JSBridge);
     
     /**
      * 专门供API内部调用的，this指针被指向了proxy对象，方便处理
@@ -16,7 +18,7 @@ export default function defaultcallMixin(hybridJs) {
      * @param {Function} resolve promise的成功回调
      * @param {Function} reject promise的失败回调
      */
-    function defaultCall(options, resolve, reject) {
+    function callInner(options, resolve, reject) {
         const data = extend({}, options);
         
         // 纯数据不需要回调
@@ -26,7 +28,7 @@ export default function defaultcallMixin(hybridJs) {
         
         if (os.quick) {
             // 默认quick环境才触发jsbridge
-            calljsbridgeMixin({
+            callJsBridge({
                 handlerName: this.api.namespace,
                 data,
                 proto: this.api.moduleName,
@@ -39,5 +41,5 @@ export default function defaultcallMixin(hybridJs) {
         }
     }
     
-    quick.defaultCall = defaultCall;
+    quick.callInner = callInner;
 }

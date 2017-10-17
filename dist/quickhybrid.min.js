@@ -78,6 +78,14 @@ function promiseMixin(hybridJs) {
     var quick = hybridJs;
 
     quick.Promise = window.Promise;
+
+    quick.getPromise = function () {
+        return quick.Promise;
+    };
+
+    quick.setPromise = function (newPromise) {
+        quick.Promise = newPromise;
+    };
 }
 
 var globalError = {
@@ -281,7 +289,8 @@ function proxyMixin(hybridJs) {
     Proxy.prototype.walk = function walk() {
         var _this = this;
 
-        var Promise = quick.Promise;
+        // 实时获取promise
+        var Promise = quick.getPromise();
 
         // 返回一个闭包函数
         return function () {
@@ -559,79 +568,6 @@ function jsbridgeMixin(hybridJs) {
     };
 }
 
-/**
- * 定义在api的内部如何请求jsbridge
- */
-function calljsbridgeMixin(hybridJs) {
-    var quick = hybridJs;
-    var JSBridge = quick.JSBridge;
-
-    /**
-     * 有三大类型，短期回调，延时回调，长期回调，其中长期回调中又有一个event比较特殊
-     * @param {JSON} options 配置参数，包括
-     * handlerName 方法名
-     * data 额外参数
-     * isLongCb 是否是长期回调，如果是，则会生成一个长期回调id，以长期回调的形式存在
-     * proto 对应方法的模块名
-     * 其它 代表相应的头部
-     * @param {Function} resolve promise中成功回调函数
-     * @param {Function} reject promise中失败回调函数
-     */
-    function callJsBridge(options, resolve, reject) {
-        var success = options.success;
-        var error = options.error;
-        var dataFilter = options.dataFilter;
-        var proto = options.proto;
-        var handlerName = options.handlerName;
-        var isLongCb = options.isLongCb;
-        var isEvent = options.isEvent;
-        var data = options.data || {};
-
-        // 统一的回调处理
-        var cbFunc = function cbFunc(res) {
-            if (res.code === 0) {
-                error && error(res);
-                // 长期回调不走promise
-                !isLongCb && reject && reject(res);
-            } else {
-                var finalRes = res;
-
-                if (dataFilter) {
-                    finalRes = dataFilter(finalRes);
-                }
-                // 提取出result
-                success && success(finalRes.result);
-                !isLongCb && resolve && resolve(finalRes.result);
-            }
-        };
-
-        if (isLongCb) {
-            /**
-             * 长期回调的做法，需要注册一个长期回调id,每一个方法都有一个固定的长期回调id
-             * 短期回调的做法(短期回调执行一次后会自动销毁)
-             * 但长期回调不会销毁，因此可以持续触发，例如下拉刷新
-             * 长期回调id通过函数自动生成，每次会获取一个唯一的id
-             */
-            var longCbId = JSBridge.getLongCallbackId();
-
-            if (isEvent) {
-                // 如果是event，data里需要增加一个参数
-                data.port = longCbId;
-            }
-            JSBridge.registerLongCallback(longCbId, cbFunc);
-            // 传入的是id
-            JSBridge.callHandler(proto, handlerName, data, longCbId);
-            // 长期回调默认就成功了，这是兼容的情况，防止有人误用
-            resolve && resolve();
-        } else {
-            // 短期回调直接使用方法
-            JSBridge.callHandler(proto, handlerName, data, cbFunc);
-        }
-    }
-
-    quick.callJsBridge = callJsBridge;
-}
-
 var noop = function noop() {};
 
 function extend(target) {
@@ -722,10 +658,79 @@ function compareVersion(version1, version2) {
  * @return {String} 返回最终的url
  */
 
-function defaultcallMixin(hybridJs) {
+/**
+ * 内部触发jsbridge的方式，作为一个工具类提供
+ */
+function generateJSBridgeTrigger(JSBridge) {
+    /**
+     * 有三大类型，短期回调，延时回调，长期回调，其中长期回调中又有一个event比较特殊
+     * @param {JSON} options 配置参数，包括
+     * handlerName 方法名
+     * data 额外参数
+     * isLongCb 是否是长期回调，如果是，则会生成一个长期回调id，以长期回调的形式存在
+     * proto 对应方法的模块名
+     * 其它 代表相应的头部
+     * @param {Function} resolve promise中成功回调函数
+     * @param {Function} reject promise中失败回调函数
+     */
+    return function callJsBridge(options, resolve, reject) {
+        var success = options.success;
+        var error = options.error;
+        var dataFilter = options.dataFilter;
+        var proto = options.proto;
+        var handlerName = options.handlerName;
+        var isLongCb = options.isLongCb;
+        var isEvent = options.isEvent;
+        var data = options.data;
+
+        // 统一的回调处理
+        var cbFunc = function cbFunc(res) {
+            if (res.code === 0) {
+                error && error(res);
+                // 长期回调不走promise
+                !isLongCb && reject && reject(res);
+            } else {
+                var finalRes = res;
+
+                if (dataFilter) {
+                    finalRes = dataFilter(finalRes);
+                }
+                // 提取出result
+                success && success(finalRes.result);
+                !isLongCb && resolve && resolve(finalRes.result);
+            }
+        };
+
+        if (isLongCb) {
+            /**
+             * 长期回调的做法，需要注册一个长期回调id,每一个方法都有一个固定的长期回调id
+             * 短期回调的做法(短期回调执行一次后会自动销毁)
+             * 但长期回调不会销毁，因此可以持续触发，例如下拉刷新
+             * 长期回调id通过函数自动生成，每次会获取一个唯一的id
+             */
+            var longCbId = JSBridge.getLongCallbackId();
+
+            if (isEvent) {
+                // 如果是event，data里需要增加一个参数
+                data.port = longCbId;
+            }
+            JSBridge.registerLongCallback(longCbId, cbFunc);
+            // 传入的是id
+            JSBridge.callHandler(proto, handlerName, data, longCbId);
+            // 长期回调默认就成功了，这是兼容的情况，防止有人误用
+            resolve && resolve();
+        } else {
+            // 短期回调直接使用方法
+            JSBridge.callHandler(proto, handlerName, data, cbFunc);
+        }
+    };
+}
+
+function callinnerMixin(hybridJs) {
     var quick = hybridJs;
     var os = quick.os;
-    var calljsbridgeMixin = quick.calljsbridgeMixin;
+    var JSBridge = quick.JSBridge;
+    var callJsBridge = generateJSBridgeTrigger(JSBridge);
 
     /**
      * 专门供API内部调用的，this指针被指向了proxy对象，方便处理
@@ -733,7 +738,7 @@ function defaultcallMixin(hybridJs) {
      * @param {Function} resolve promise的成功回调
      * @param {Function} reject promise的失败回调
      */
-    function defaultCall(options, resolve, reject) {
+    function callInner(options, resolve, reject) {
         var data = extend({}, options);
 
         // 纯数据不需要回调
@@ -743,7 +748,7 @@ function defaultcallMixin(hybridJs) {
 
         if (os.quick) {
             // 默认quick环境才触发jsbridge
-            calljsbridgeMixin({
+            callJsBridge({
                 handlerName: this.api.namespace,
                 data: data,
                 proto: this.api.moduleName,
@@ -756,7 +761,7 @@ function defaultcallMixin(hybridJs) {
         }
     }
 
-    quick.defaultCall = defaultCall;
+    quick.callInner = callInner;
 }
 
 function defineapiMixin(hybridJs) {
@@ -765,7 +770,7 @@ function defineapiMixin(hybridJs) {
     var globalError = quick.globalError;
     var showError = quick.showError;
     var os = quick.os;
-    var defaultCall = quick.defaultCall;
+    var callInner = quick.callInner;
 
     /**
      * 存放所有的代理 api对象
@@ -901,9 +906,9 @@ function defineapiMixin(hybridJs) {
         // 一个新的API代理，会替换以前API命名空间中对应的内容
         var apiRuncode = api.runCode;
 
-        if (!apiRuncode && defaultCall) {
-            // 如果没有runcode，默认使用quick的defaultCall
-            apiRuncode = defaultCall;
+        if (!apiRuncode && callInner) {
+            // 如果没有runcode，默认使用quick的callInner
+            apiRuncode = callInner;
         }
 
         var newApiProxy = new Proxy(api, apiRuncode);
@@ -913,7 +918,7 @@ function defineapiMixin(hybridJs) {
         proxysApis[finalNameSpace] = {};
 
         supportOsArray.forEach(function (osTmp) {
-            if (api.os.indexOf(osTmp) !== -1) {
+            if (api.os && api.os.indexOf(osTmp) !== -1) {
                 // 如果存在这个os，并且合法，重新定义
                 proxysApis[finalNameSpace][osTmp] = newApiProxy;
                 oldProxyOsNotUse[osTmp] = true;
@@ -921,7 +926,7 @@ function defineapiMixin(hybridJs) {
                 // 否则仍然使用老版本的代理
                 proxysApis[finalNameSpace][osTmp] = oldProxyNamespace[osTmp];
                 // api本身的os要添加这个环境，便于提示
-                api.os.push(osTmp);
+                api.os && api.os.push(osTmp);
             }
         });
 
@@ -954,15 +959,10 @@ function defineapiMixin(hybridJs) {
     quick.extendApi = extendApi;
 }
 
-/**
- * 定义如何调用一个API
- * 一般指调用原生环境下的API
- * 依赖于Promise,calljsbridgeMixin
- */
 function callnativeapiMixin(hybridJs) {
     var quick = hybridJs;
-    var calljsbridgeMixin = quick.calljsbridgeMixin;
-    var Promise = quick.Promise;
+    var JSBridge = quick.JSBridge;
+    var callJsBridge = generateJSBridgeTrigger(JSBridge);
 
     /**
      * 调用自定义API
@@ -970,13 +970,15 @@ function callnativeapiMixin(hybridJs) {
      * @return {Object} 返回一个Promise对象，如果没有Promise环境，直接返回运行结果
      */
     function callApi(options) {
+        // 实时获取promise
+        var Promise = quick.getPromise();
         var finalOptions = options || {};
 
         var callback = function callback(resolve, reject) {
-            calljsbridgeMixin({
+            callJsBridge({
                 handlerName: finalOptions.name,
                 proto: finalOptions.mudule,
-                data: finalOptions.data,
+                data: finalOptions.data || {},
                 success: finalOptions.success,
                 error: finalOptions.error,
                 isLongCb: finalOptions.isLongCb,
@@ -1101,6 +1103,59 @@ function initMixin(hybridJs) {
     });
 }
 
+function authMixin(hybridJs) {
+    var quick = hybridJs;
+
+    /**
+     * 拓展ui模块
+     */
+    quick.extendModule('auth', [{
+        namespace: 'getToken',
+        os: ['quick']
+    }, {
+        namespace: 'refreshToken',
+        os: ['quick']
+    }, {
+        namespace: 'getUserInfo',
+        os: ['quick']
+    }]);
+}
+
+function apinativeMixin(hybridJs) {
+    authMixin(hybridJs);
+}
+
+function uiMixin(hybridJs) {
+    var quick = hybridJs;
+
+    /**
+     * 拓展ui模块
+     */
+    quick.extendModule('ui', [{
+        namespace: 'alert',
+        os: ['h5'],
+        defaultParams: {
+            title: '',
+            message: '',
+            buttonName: '确定'
+        },
+        runCode: function runCode(options, resolve, reject) {
+            // TODO: 增加UI的API
+            options.success && options.success({});
+            resolve && resolve({});
+        }
+    }]);
+}
+
+function apih5Mixin(hybridJs) {
+    uiMixin(hybridJs);
+}
+
+function apiMixin(hybridJs) {
+    apinativeMixin(hybridJs);
+    apih5Mixin(hybridJs);
+}
+
 var quick = {};
 
 osMixin(quick);
@@ -1110,16 +1165,16 @@ errorMixin(quick);
 proxyMixin(quick);
 // 依赖于showError，globalError，os
 jsbridgeMixin(quick);
-// 依赖于jsbridge
-calljsbridgeMixin(quick);
-// api没有runcode时的默认实现，依赖于calljsbridgeMixin与os
-defaultcallMixin(quick);
-// 依赖于os，Proxy，globalError，showError，以及defaultCall
+// api没有runcode时的默认实现，依赖于jsbridge与os
+callinnerMixin(quick);
+// 依赖于os，Proxy，globalError，showError，以及callInner
 defineapiMixin(quick);
-// 依赖于JSBridge，Promise,calljsbridgeMixin
+// 依赖于JSBridge，Promise,sbridge
 callnativeapiMixin(quick);
 // init依赖与基础库以及部分原生的API
 initMixin(quick);
+// api添加，这才是实际调用的api
+apiMixin(quick);
 
 quick.Version = '3.0.0';
 

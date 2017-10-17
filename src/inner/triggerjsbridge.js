@@ -1,10 +1,7 @@
 /**
- * 定义在api的内部如何请求jsbridge
+ * 内部触发jsbridge的方式，作为一个工具类提供
  */
-export default function calljsbridgeMixin(hybridJs) {
-    const quick = hybridJs;
-    const JSBridge = quick.JSBridge;
-    
+export default function generateJSBridgeTrigger(JSBridge) {
     /**
      * 有三大类型，短期回调，延时回调，长期回调，其中长期回调中又有一个event比较特殊
      * @param {JSON} options 配置参数，包括
@@ -16,7 +13,7 @@ export default function calljsbridgeMixin(hybridJs) {
      * @param {Function} resolve promise中成功回调函数
      * @param {Function} reject promise中失败回调函数
      */
-    function callJsBridge(options, resolve, reject) {
+    return function callJsBridge(options, resolve, reject) {
         const success = options.success;
         const error = options.error;
         const dataFilter = options.dataFilter;
@@ -24,7 +21,7 @@ export default function calljsbridgeMixin(hybridJs) {
         const handlerName = options.handlerName;
         const isLongCb = options.isLongCb;
         const isEvent = options.isEvent;
-        const data = options.data || {};
+        const data = options.data;
         
         // 统一的回调处理
         const cbFunc = (res) => {
@@ -66,7 +63,5 @@ export default function calljsbridgeMixin(hybridJs) {
             // 短期回调直接使用方法
             JSBridge.callHandler(proto, handlerName, data, cbFunc);
         }
-    }
-    
-    quick.callJsBridge = callJsBridge;
+    };
 }

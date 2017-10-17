@@ -69,7 +69,8 @@ describe('创建proxy函数', () => {
     });
     
     it('proxy使用promise resolve', (done) => {
-        quick.Promise = Promise;
+        quick.setPromise(Promise);
+        proxyMixin(quick);
         
         callback = function innerCallback(options, resolve) {
             expect(this.api).to.be.equal(api);
@@ -89,7 +90,8 @@ describe('创建proxy函数', () => {
     });
     
     it('proxy使用promise reject', (done) => {
-        quick.Promise = Promise;
+        quick.setPromise(Promise);
+        proxyMixin(quick);
         
         callback = function innerCallback(options, resolve, reject) {
             expect(this.api).to.be.equal(api);
