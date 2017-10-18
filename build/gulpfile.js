@@ -3,6 +3,7 @@ const path = require('path');
 const gulp = require('gulp');
 const rollup = require('rollup');
 const babel = require('rollup-plugin-babel');
+const uglify = require('rollup-plugin-uglify');
 const eslint = require('rollup-plugin-eslint');
 const gulpEslint = require('gulp-eslint');
 const pkg = require('../package.json');
@@ -59,6 +60,7 @@ gulp.task('build_dist', () => rollup.rollup({
             // only transpile our source code
             exclude: 'node_modules/**',
         }),
+        uglify(),
     ],
 })
     .then((bundle) => {
