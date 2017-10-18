@@ -106,7 +106,7 @@ describe('compareVersion', () => {
     it('大于匹配', () => {
         expect(compareVersion('1.0.1', '1.0.0')).to.be.equal(1);
         expect(compareVersion('1.1', '1.0.2')).to.be.equal(1);
-         expect(compareVersion('1.1.1', '1.1')).to.be.equal(1);
+        expect(compareVersion('1.1.1', '1.1')).to.be.equal(1);
     });
     it('小于匹配', () => {
         expect(compareVersion('1.0.1', '1.0.2')).to.be.equal(-1);

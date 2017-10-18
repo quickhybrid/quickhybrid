@@ -1,3 +1,7 @@
+import {
+    isObject,
+} from '../../util/lang';
+
 export default function uiMixin(hybridJs) {
     const quick = hybridJs;
 
@@ -15,7 +19,7 @@ export default function uiMixin(hybridJs) {
             let reject = rest[2];
             
             // 支持简单的调用，alert(msg, title, btn)              
-            if (typeof options !== 'object') {
+            if (!isObject(options)) {
                 options = {
                     message: rest[0],
                     title: '',
@@ -23,7 +27,8 @@ export default function uiMixin(hybridJs) {
                 };
                 // 处理快速调用时的 resolve 与参数关系
                 if (typeof rest[1] === 'string') {
-                    options.title = rest[1];
+                    options.title = rest[0];
+                    options.message = rest[1];
                     if (typeof rest[2] === 'string') {
                         options.buttonName = rest[2];
                         resolve = rest[3];
@@ -39,11 +44,7 @@ export default function uiMixin(hybridJs) {
                 // 可以使用自己的alert,并在回调中成功
                 window.alert(options.message,
                     options.title,
-                    options.buttonName,
-                    () => {
-                        options.success && options.success({});
-                        resolve && resolve({});
-                    });
+                    options.buttonName);
 
                 // 这里由于是window的alert，所以直接成功
                 options.success && options.success({});

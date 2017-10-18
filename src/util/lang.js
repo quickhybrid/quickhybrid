@@ -5,6 +5,10 @@ export function getNow() {
         +new Date();
 }
 
+export function isObject(object) {
+    return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1] === 'Object';
+}
+
 export const noop = () => {};
 
 export function extend(target, ...rest) {
@@ -82,9 +86,12 @@ export function getProjectBasePath() {
     const patehName = locObj.pathname;
     const pathArray = patehName.split('/');
     // 如果是 host/xxx.html 则是/，如果是host/project/xxx.html,则是project/
-    const contextPath = pathArray.length > 2 ? `${pathArray[1]}/` : '';
-
-    return `${locObj.protocol}//${locObj.host}/${contextPath}`;
+    // pathName一般是 /context.html 或 /xxx/xx/content.html
+    const hasProject = pathArray.length > 2;
+    const contextPath = `${pathArray[Number(hasProject)]}/`;
+    
+    // 如果尾部有两个//替换成一个
+    return `${locObj.protocol}//${locObj.host}/${contextPath}`.replace(/[/]{2}$/, '/');
 }
 
 /**
