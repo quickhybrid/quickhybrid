@@ -141,13 +141,13 @@ describe('拓展API', () => {
             testKey2: 'test2',
         };
         quick.callInner = (options) => {
-            expect(options).to.be.equal(params);       
+            expect(options).to.be.equal(params);
             done();
         };
         defineapiMixin(quick);
         quick.extendApi('test2', {
             namespace: `api${index}`,
-            os: ['h5']
+            os: ['h5'],
         });
         
         quick.test2[`api${index}`](params);

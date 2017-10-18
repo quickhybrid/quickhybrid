@@ -1,3 +1,7 @@
+import {
+    warn,
+} from '../util/debug';
+
 /**
  * h5和原生交互，jsbridge核心代码
  * 依赖于showError，globalError，os
@@ -26,10 +30,6 @@ export default function jsbridgeMixin(hybridJs) {
 
     // 唯一id,用来确保长期回调的唯一性，初始化为最大值
     let uniqueLongCallbackId = 2147483647;
-
-    function warn(msg) {
-        console.error(`[JSBridge Error]:${msg}`);
-    }
 
     /**
      * 获取短期回调id，内部要避免和长期回调的冲突
@@ -119,7 +119,7 @@ export default function jsbridgeMixin(hybridJs) {
             }
         } else {
             // 浏览器
-            warn(`浏览器中ejs无效,对应scheme:${uri}`);
+            warn(`浏览器中jsbridge无效,对应scheme:${uri}`);
         }
     }
 

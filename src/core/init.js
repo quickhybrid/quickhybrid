@@ -1,5 +1,10 @@
-import { log } from '../util/debug';
-import { extend, compareVersion } from '../util/lang';
+import {
+    log,
+} from '../util/debug';
+import {
+    extend,
+    compareVersion,
+} from '../util/lang';
 
 /**
  * 初始化给配置全局函数
@@ -83,9 +88,7 @@ export default function initMixin(hybridJs) {
                         success();
                     },
                     error(error) {
-                        const tips = error
-                            ? JSON.stringify(error)
-                            : globalError.ERROR_TYPE_CONFIGERROR.msg;
+                        const tips = JSON.stringify(error);
                         
                         showError(
                             globalError.ERROR_TYPE_CONFIGERROR.code,

@@ -342,10 +342,6 @@ function proxyMixin(hybridJs) {
     quick.Proxy = Proxy;
 }
 
-/**
- * h5和原生交互，jsbridge核心代码
- * 依赖于showError，globalError，os
- */
 function jsbridgeMixin(hybridJs) {
     var quick = hybridJs;
     // 定义一个JSBridge
@@ -370,10 +366,6 @@ function jsbridgeMixin(hybridJs) {
 
     // 唯一id,用来确保长期回调的唯一性，初始化为最大值
     var uniqueLongCallbackId = 2147483647;
-
-    function warn(msg) {
-        console.error('[JSBridge Error]:' + msg);
-    }
 
     /**
      * 获取短期回调id，内部要避免和长期回调的冲突
@@ -463,7 +455,7 @@ function jsbridgeMixin(hybridJs) {
             }
         } else {
             // 浏览器
-            warn('\u6D4F\u89C8\u5668\u4E2Dejs\u65E0\u6548,\u5BF9\u5E94scheme:' + uri);
+            warn('\u6D4F\u89C8\u5668\u4E2Djsbridge\u65E0\u6548,\u5BF9\u5E94scheme:' + uri);
         }
     }
 
@@ -993,6 +985,9 @@ function callnativeapiMixin(hybridJs) {
     quick.callNativeApi = callApi;
 }
 
+/**
+ * 初始化给配置全局函数
+ */
 function initMixin(hybridJs) {
     var quick = hybridJs;
     var globalError = quick.globalError;
@@ -1064,7 +1059,7 @@ function initMixin(hybridJs) {
                         _success();
                     },
                     error: function error(_error) {
-                        var tips = _error ? JSON.stringify(_error) : globalError.ERROR_TYPE_CONFIGERROR.msg;
+                        var tips = JSON.stringify(_error);
 
                         showError(globalError.ERROR_TYPE_CONFIGERROR.code, tips);
                     }
@@ -1106,9 +1101,6 @@ function initMixin(hybridJs) {
 function authMixin(hybridJs) {
     var quick = hybridJs;
 
-    /**
-     * 拓展ui模块
-     */
     quick.extendModule('auth', [{
         namespace: 'getToken',
         os: ['quick']
@@ -1118,19 +1110,174 @@ function authMixin(hybridJs) {
     }, {
         namespace: 'getUserInfo',
         os: ['quick']
+    }, {
+        namespace: 'config',
+        os: ['quick'],
+        defaultParams: {
+            // 一个数组，不要传null，否则可能在iOS中会有问题
+            jsApiList: []
+        }
     }]);
 }
 
-function apinativeMixin(hybridJs) {
-    authMixin(hybridJs);
+function runtimeMixin(hybridJs) {
+    var quick = hybridJs;
+
+    quick.extendModule('runtime', [{
+        namespace: 'getAppVersion',
+        os: ['quick']
+    }, {
+        namespace: 'getQuickVersion',
+        os: ['quick']
+    }]);
 }
 
 function uiMixin(hybridJs) {
     var quick = hybridJs;
 
-    /**
-     * 拓展ui模块
-     */
+    quick.extendModule('ui', [{
+        namespace: 'alert',
+        os: ['quick'],
+        defaultParams: {
+            title: '',
+            message: '',
+            buttonName: '确定'
+        }
+    }]);
+}
+
+function apinativeMixin(hybridJs) {
+    authMixin(hybridJs);
+    runtimeMixin(hybridJs);
+    uiMixin(hybridJs);
+}
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+var asyncGenerator = function () {
+  function AwaitValue(value) {
+    this.value = value;
+  }
+
+  function AsyncGenerator(gen) {
+    var front, back;
+
+    function send(key, arg) {
+      return new Promise(function (resolve, reject) {
+        var request = {
+          key: key,
+          arg: arg,
+          resolve: resolve,
+          reject: reject,
+          next: null
+        };
+
+        if (back) {
+          back = back.next = request;
+        } else {
+          front = back = request;
+          resume(key, arg);
+        }
+      });
+    }
+
+    function resume(key, arg) {
+      try {
+        var result = gen[key](arg);
+        var value = result.value;
+
+        if (value instanceof AwaitValue) {
+          Promise.resolve(value.value).then(function (arg) {
+            resume("next", arg);
+          }, function (arg) {
+            resume("throw", arg);
+          });
+        } else {
+          settle(result.done ? "return" : "normal", result.value);
+        }
+      } catch (err) {
+        settle("throw", err);
+      }
+    }
+
+    function settle(type, value) {
+      switch (type) {
+        case "return":
+          front.resolve({
+            value: value,
+            done: true
+          });
+          break;
+
+        case "throw":
+          front.reject(value);
+          break;
+
+        default:
+          front.resolve({
+            value: value,
+            done: false
+          });
+          break;
+      }
+
+      front = front.next;
+
+      if (front) {
+        resume(front.key, front.arg);
+      } else {
+        back = null;
+      }
+    }
+
+    this._invoke = send;
+
+    if (typeof gen.return !== "function") {
+      this.return = undefined;
+    }
+  }
+
+  if (typeof Symbol === "function" && Symbol.asyncIterator) {
+    AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
+      return this;
+    };
+  }
+
+  AsyncGenerator.prototype.next = function (arg) {
+    return this._invoke("next", arg);
+  };
+
+  AsyncGenerator.prototype.throw = function (arg) {
+    return this._invoke("throw", arg);
+  };
+
+  AsyncGenerator.prototype.return = function (arg) {
+    return this._invoke("return", arg);
+  };
+
+  return {
+    wrap: function (fn) {
+      return function () {
+        return new AsyncGenerator(fn.apply(this, arguments));
+      };
+    },
+    await: function (value) {
+      return new AwaitValue(value);
+    }
+  };
+}();
+
+function uiMixin$1(hybridJs) {
+    var quick = hybridJs;
+
     quick.extendModule('ui', [{
         namespace: 'alert',
         os: ['h5'],
@@ -1139,16 +1286,52 @@ function uiMixin(hybridJs) {
             message: '',
             buttonName: '确定'
         },
-        runCode: function runCode(options, resolve, reject) {
-            // TODO: 增加UI的API
-            options.success && options.success({});
-            resolve && resolve({});
+        runCode: function runCode() {
+            var options = arguments.length <= 0 ? undefined : arguments[0];
+            var resolve = arguments.length <= 1 ? undefined : arguments[1];
+            var reject = arguments.length <= 2 ? undefined : arguments[2];
+
+            // 支持简单的调用，alert(msg, title, btn)              
+            if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) !== 'object') {
+                options = {
+                    message: arguments.length <= 0 ? undefined : arguments[0],
+                    title: '',
+                    buttonName: '确定'
+                };
+                // 处理快速调用时的 resolve 与参数关系
+                if (typeof (arguments.length <= 1 ? undefined : arguments[1]) === 'string') {
+                    options.title = arguments.length <= 1 ? undefined : arguments[1];
+                    if (typeof (arguments.length <= 2 ? undefined : arguments[2]) === 'string') {
+                        options.buttonName = arguments.length <= 2 ? undefined : arguments[2];
+                        resolve = arguments.length <= 3 ? undefined : arguments[3];
+                        reject = arguments.length <= 4 ? undefined : arguments[4];
+                    } else {
+                        resolve = arguments.length <= 2 ? undefined : arguments[2];
+                        reject = arguments.length <= 3 ? undefined : arguments[3];
+                    }
+                }
+            }
+
+            if (window.alert) {
+                // 可以使用自己的alert,并在回调中成功
+                window.alert(options.message, options.title, options.buttonName, function () {
+                    options.success && options.success({});
+                    resolve && resolve({});
+                });
+
+                // 这里由于是window的alert，所以直接成功
+                options.success && options.success({});
+                resolve && resolve({});
+            } else {
+                options.error && options.error({});
+                reject && reject({});
+            }
         }
     }]);
 }
 
 function apih5Mixin(hybridJs) {
-    uiMixin(hybridJs);
+    uiMixin$1(hybridJs);
 }
 
 function apiMixin(hybridJs) {
@@ -1156,27 +1339,33 @@ function apiMixin(hybridJs) {
     apih5Mixin(hybridJs);
 }
 
+function mixin(hybridJs) {
+    var quick = hybridJs;
+
+    osMixin(quick);
+    promiseMixin(quick);
+    errorMixin(quick);
+    // 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
+    proxyMixin(quick);
+    // 依赖于showError，globalError，os
+    jsbridgeMixin(quick);
+    // api没有runcode时的默认实现，依赖于jsbridge与os
+    callinnerMixin(quick);
+    // 依赖于os，Proxy，globalError，showError，以及callInner
+    defineapiMixin(quick);
+    // 依赖于JSBridge，Promise,sbridge
+    callnativeapiMixin(quick);
+    // init依赖与基础库以及部分原生的API
+    initMixin(quick);
+    // api添加，这才是实际调用的api
+    apiMixin(quick);
+}
+
 var quick = {};
 
-osMixin(quick);
-promiseMixin(quick);
-errorMixin(quick);
-// 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
-proxyMixin(quick);
-// 依赖于showError，globalError，os
-jsbridgeMixin(quick);
-// api没有runcode时的默认实现，依赖于jsbridge与os
-callinnerMixin(quick);
-// 依赖于os，Proxy，globalError，showError，以及callInner
-defineapiMixin(quick);
-// 依赖于JSBridge，Promise,sbridge
-callnativeapiMixin(quick);
-// init依赖与基础库以及部分原生的API
-initMixin(quick);
-// api添加，这才是实际调用的api
-apiMixin(quick);
+mixin(quick);
 
-quick.Version = '3.0.0';
+quick.Version = '1.0.0';
 
 return quick;
 

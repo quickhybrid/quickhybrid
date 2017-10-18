@@ -1,6 +1,7 @@
-import { expect } from 'chai';
 import {
-    noop,
+    expect,
+} from 'chai';
+import {
     extend,
 } from '../src/util/lang';
 import quick from '../src/index';
@@ -12,9 +13,9 @@ describe('拓展一个测试模块并通过calljsbridge调用', () => {
     beforeEach(() => {
         quick.os.quick = true;
         quick.setPromise(Promise);
-        window.top.prompt = function(uri) {
+        window.top.prompt = (uri) => {
             curShotCallbackId = uri.match(/\w+[:][/]{2}\w+[:](\d+)/)[1];
-            console.log(curShotCallbackId);
+            expect(+curShotCallbackId).to.be.a('number');
         };
     });
 
@@ -25,9 +26,7 @@ describe('拓展一个测试模块并通过calljsbridge调用', () => {
             runCode(options, resolve, reject) {
                 const newOptions = extend({}, options);
 
-                newOptions.dataFilter = (res) => {
-                    return res;
-                };
+                newOptions.dataFilter = res => res;
 
                 quick.callInner.call(this, newOptions, resolve, reject);
             },
@@ -36,13 +35,13 @@ describe('拓展一个测试模块并通过calljsbridge调用', () => {
         quick.test.foo({
             success: () => {
                 done();
-            }
+            },
         });
 
         quick.JSBridge._handleMessageFromNative({
             responseId: curShotCallbackId,
             responseData: {
-                code: 1
+                code: 1,
             },
         });
     });
@@ -60,13 +59,13 @@ describe('拓展一个测试模块并通过calljsbridge调用', () => {
             success: () => {},
             error: () => {
                 done();
-            }
+            },
         });
 
         quick.JSBridge._handleMessageFromNative({
             responseId: curShotCallbackId,
             responseData: {
-                code: 0
+                code: 0,
             },
         });
     });
@@ -100,8 +99,6 @@ describe('拓展一个测试模块并通过calljsbridge调用', () => {
                 done();
             },
         }]);
-
         quick.test.fooEvent();
     });
-
 });

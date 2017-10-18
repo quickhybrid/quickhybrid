@@ -42,7 +42,7 @@ describe('创建proxy函数', () => {
             done();
         };
         
-        let proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new quick.Proxy(api, callback)).walk();
         
         proxyFun();
     });
@@ -56,14 +56,14 @@ describe('创建proxy函数', () => {
             done();
         };
         
-        let proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new quick.Proxy(api, callback)).walk();
         
         proxyFun(params);
     });
     
     it('proxy时不传回调', () => {
         // 执行后市undefined
-        let proxyFun = (new quick.Proxy(api)).walk();
+        const proxyFun = (new quick.Proxy(api)).walk();
 
         expect(proxyFun()).to.be.equal(undefined);
     });
@@ -80,7 +80,7 @@ describe('创建proxy函数', () => {
             resolve(params);
         };
         
-        let proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new quick.Proxy(api, callback)).walk();
         
         proxyFun(params).then((val) => {
             expect(val).to.be.equal(params);
@@ -101,7 +101,7 @@ describe('创建proxy函数', () => {
             reject(params);
         };
         
-        let proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new quick.Proxy(api, callback)).walk();
         
         proxyFun(params).catch((val) => {
             expect(val).to.be.equal(params);
