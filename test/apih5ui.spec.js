@@ -1,9 +1,3 @@
-import {
-    expect,
-} from 'chai';
-import {
-    noop,
-} from '../src/util/lang';
 import quick from '../src/index';
 import Promise from './inner/promise';
 
@@ -28,7 +22,7 @@ describe('ui-alert', () => {
             message: '测试内容',
             success: () => {
                 done();
-            }
+            },
         });
     });
     
@@ -45,7 +39,7 @@ describe('ui-alert', () => {
             message: '测试内容',
             error: () => {
                 done();
-            }
+            },
         });
     });
     it('去除alert,promise失败', (done) => {
