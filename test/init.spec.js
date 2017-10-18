@@ -79,10 +79,10 @@ describe('quick环境的初始化', () => {
         mixin(quick);
         quick.version = '1.0.0';
         quick.os.quick = true;
-        window.top.prompt = window.top.prompt = (uri) => {
+        window.top.prompt = (uri) => {
             const curMatch = uri.match(/\w+[:][/]{2}(\w+)[:](\d+)/);
-            let curCallbackId = curMatch[2];
-            let curCallbackName = curMatch[1];
+            const curCallbackId = curMatch[2];
+            const curCallbackName = curMatch[1];
 
             expect(+curCallbackId).to.be.a('number');
             expect(curCallbackName).to.be.a('string');
@@ -90,7 +90,7 @@ describe('quick环境的初始化', () => {
             innerTrigger && innerTrigger(curCallbackId, curCallbackName);
 
             console.log(`监听回调uri:${uri}`);
-        };;
+        };
     });
 
     it('ready,并触发正确的version与config', (done) => {
@@ -109,7 +109,7 @@ describe('quick环境的初始化', () => {
                     responseData: {
                         code: 1,
                         result: {
-                            version: '1.0.0',  
+                            version: '1.0.0',
                         },
                     },
                 });
@@ -137,7 +137,7 @@ describe('quick环境的初始化', () => {
                     responseData: {
                         code: 0,
                         result: {
-                            version: '1.0.0',  
+                            version: '1.0.0',
                         },
                     },
                 });
@@ -165,7 +165,7 @@ describe('quick环境的初始化', () => {
                     responseData: {
                         code: 1,
                         result: {
-                            version: '2.0.0',  
+                            version: '2.0.0',
                         },
                     },
                 });

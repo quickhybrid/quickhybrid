@@ -342,6 +342,10 @@ function proxyMixin(hybridJs) {
     quick.Proxy = Proxy;
 }
 
+/**
+ * h5和原生交互，jsbridge核心代码
+ * 依赖于showError，globalError，os
+ */
 function jsbridgeMixin(hybridJs) {
     var quick = hybridJs;
     // 定义一个JSBridge
@@ -722,6 +726,9 @@ function generateJSBridgeTrigger(JSBridge) {
     };
 }
 
+/**
+ * 如果api没有runcode，应该有一个默认的实现
+ */
 function callinnerMixin(hybridJs) {
     var quick = hybridJs;
     var os = quick.os;
@@ -760,6 +767,16 @@ function callinnerMixin(hybridJs) {
     quick.callInner = callInner;
 }
 
+/**
+ * 定义API的添加
+ * 必须按照特定方法添加API才能正常的代理
+ * 依赖于一些基本库
+ * os
+ * Proxy
+ * globalError
+ * showError
+ * callInner
+ */
 function defineapiMixin(hybridJs) {
     var quick = hybridJs;
     var Proxy = quick.Proxy;
@@ -955,6 +972,11 @@ function defineapiMixin(hybridJs) {
     quick.extendApi = extendApi;
 }
 
+/**
+ * 定义如何调用一个API
+ * 一般指调用原生环境下的API
+ * 依赖于Promise,calljsbridgeMixin
+ */
 function callnativeapiMixin(hybridJs) {
     var quick = hybridJs;
     var JSBridge = quick.JSBridge;
@@ -989,6 +1011,9 @@ function callnativeapiMixin(hybridJs) {
     quick.callNativeApi = callApi;
 }
 
+/**
+ * 初始化给配置全局函数
+ */
 function initMixin(hybridJs) {
     var quick = hybridJs;
     var globalError = quick.globalError;
