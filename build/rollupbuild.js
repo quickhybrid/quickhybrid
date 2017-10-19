@@ -75,5 +75,21 @@ function build(config) {
         });
 }
 
+function walk(options) {
+    let built = 0;
+    const total = options.length;
+    const next = () => {
+        build(options[built]).then(() => {
+            built += 1;
+            if (built < total) {
+                next();
+            }
+        }).catch(logError);
+    };
+
+    next();
+}
+
 module.exports.writeBundle = writeBundle;
 module.exports.build = build;
+module.exports.walk = walk;

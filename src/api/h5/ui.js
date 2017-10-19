@@ -1,9 +1,6 @@
-import {
-    isObject,
-} from '../../util/lang';
-
 export default function uiMixin(hybridJs) {
     const quick = hybridJs;
+    const innerUtil = quick.innerUtil;
 
     quick.extendModule('ui', [{
         namespace: 'alert',
@@ -19,7 +16,7 @@ export default function uiMixin(hybridJs) {
             let reject = rest[2];
             
             // 支持简单的调用，alert(msg, title, btn)              
-            if (!isObject(options)) {
+            if (!innerUtil.isObject(options)) {
                 options = {
                     message: rest[0],
                     title: '',

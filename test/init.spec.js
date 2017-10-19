@@ -9,6 +9,8 @@ import errorMixin from '../src/core/error';
 import jsbridgeMixin from '../src/core/jsbridge';
 import initMixin from '../src/core/init';
 import osMixin from '../src/core/os';
+import authMixin from '../src/api/native/auth';
+import runtimeMixin from '../src/api/native/runtime';
 
 let quick;
 
@@ -16,6 +18,8 @@ describe('H5下的config', () => {
     before(() => {
         quick = {};
         mixin(quick);
+        authMixin(quick);
+        runtimeMixin(quick);
     });
 
     it('正常的ready', (done) => {
@@ -50,6 +54,8 @@ describe('先ready再config', () => {
     before(() => {
         quick = {};
         mixin(quick);
+        authMixin(quick);
+        runtimeMixin(quick);
     });
 
     it('正常ready成功', (done) => {
@@ -77,6 +83,8 @@ describe('quick环境的初始化', () => {
     beforeEach(() => {
         quick = {};
         mixin(quick);
+        authMixin(quick);
+        runtimeMixin(quick);
         quick.version = '1.0.0';
         quick.os.quick = true;
         window.top.prompt = (uri) => {

@@ -1124,120 +1124,13 @@ function initMixin(hybridJs) {
     });
 }
 
-function authMixin(hybridJs) {
+function innerUtilMixin(hybridJs) {
     var quick = hybridJs;
+    var innerUtil = {};
 
-    quick.extendModule('auth', [{
-        namespace: 'getToken',
-        os: ['quick']
-    }, {
-        namespace: 'refreshToken',
-        os: ['quick']
-    }, {
-        namespace: 'getUserInfo',
-        os: ['quick']
-    }, {
-        namespace: 'config',
-        os: ['quick'],
-        defaultParams: {
-            // 一个数组，不要传null，否则可能在iOS中会有问题
-            jsApiList: []
-        }
-    }]);
-}
+    quick.innerUtil = innerUtil;
 
-function runtimeMixin(hybridJs) {
-    var quick = hybridJs;
-
-    quick.extendModule('runtime', [{
-        namespace: 'getAppVersion',
-        os: ['quick']
-    }, {
-        namespace: 'getQuickVersion',
-        os: ['quick']
-    }]);
-}
-
-function uiMixin(hybridJs) {
-    var quick = hybridJs;
-
-    quick.extendModule('ui', [{
-        namespace: 'alert',
-        os: ['quick'],
-        defaultParams: {
-            title: '',
-            message: '',
-            buttonName: '确定'
-        }
-    }]);
-}
-
-function apinativeMixin(hybridJs) {
-    authMixin(hybridJs);
-    runtimeMixin(hybridJs);
-    uiMixin(hybridJs);
-}
-
-function uiMixin$1(hybridJs) {
-    var quick = hybridJs;
-
-    quick.extendModule('ui', [{
-        namespace: 'alert',
-        os: ['h5'],
-        defaultParams: {
-            title: '',
-            message: '',
-            buttonName: '确定'
-        },
-        runCode: function runCode() {
-            var options = arguments.length <= 0 ? undefined : arguments[0];
-            var resolve = arguments.length <= 1 ? undefined : arguments[1];
-            var reject = arguments.length <= 2 ? undefined : arguments[2];
-
-            // 支持简单的调用，alert(msg, title, btn)              
-            if (!isObject(options)) {
-                options = {
-                    message: arguments.length <= 0 ? undefined : arguments[0],
-                    title: '',
-                    buttonName: '确定'
-                };
-                // 处理快速调用时的 resolve 与参数关系
-                if (typeof (arguments.length <= 1 ? undefined : arguments[1]) === 'string') {
-                    options.title = arguments.length <= 0 ? undefined : arguments[0];
-                    options.message = arguments.length <= 1 ? undefined : arguments[1];
-                    if (typeof (arguments.length <= 2 ? undefined : arguments[2]) === 'string') {
-                        options.buttonName = arguments.length <= 2 ? undefined : arguments[2];
-                        resolve = arguments.length <= 3 ? undefined : arguments[3];
-                        reject = arguments.length <= 4 ? undefined : arguments[4];
-                    } else {
-                        resolve = arguments.length <= 2 ? undefined : arguments[2];
-                        reject = arguments.length <= 3 ? undefined : arguments[3];
-                    }
-                }
-            }
-
-            if (window.alert) {
-                // 可以使用自己的alert,并在回调中成功
-                window.alert(options.message, options.title, options.buttonName);
-
-                // 这里由于是window的alert，所以直接成功
-                options.success && options.success({});
-                resolve && resolve({});
-            } else {
-                options.error && options.error({});
-                reject && reject({});
-            }
-        }
-    }]);
-}
-
-function apih5Mixin(hybridJs) {
-    uiMixin$1(hybridJs);
-}
-
-function apiMixin(hybridJs) {
-    apinativeMixin(hybridJs);
-    apih5Mixin(hybridJs);
+    innerUtil.isObject = isObject;
 }
 
 function mixin(hybridJs) {
@@ -1258,8 +1151,8 @@ function mixin(hybridJs) {
     callnativeapiMixin(quick);
     // init依赖与基础库以及部分原生的API
     initMixin(quick);
-    // api添加，这才是实际调用的api
-    apiMixin(quick);
+    // 给API快速使用的内部工具集
+    innerUtilMixin(quick);
 }
 
 var quick = {};

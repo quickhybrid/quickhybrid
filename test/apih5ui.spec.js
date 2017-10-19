@@ -1,6 +1,8 @@
 import quick from '../src/index';
 import Promise from './inner/promise';
+import uiMixin from '../src/api/h5/ui';
 
+uiMixin(quick);
 
 describe('ui-alert', () => {
     const oldAlert = window.alert;

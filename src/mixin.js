@@ -7,7 +7,7 @@ import callinnerMixin from './core/callinner';
 import defineapiMixin from './core/defineapi';
 import callnativeapiMixin from './core/callnativeapi';
 import initMixin from './core/init';
-import apiMixin from './api/index';
+import innerUtilMixin from './core/innerutil';
 
 export default function mixin(hybridJs) {
     const quick = hybridJs;
@@ -27,6 +27,6 @@ export default function mixin(hybridJs) {
     callnativeapiMixin(quick);
     // init依赖与基础库以及部分原生的API
     initMixin(quick);
-    // api添加，这才是实际调用的api
-    apiMixin(quick);
+    // 给API快速使用的内部工具集
+    innerUtilMixin(quick);
 }

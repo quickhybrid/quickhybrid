@@ -1,11 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
+const gulpSequence = require('gulp-sequence');
+const gulpUglify = require('gulp-uglify');
+const gulpEslint = require('gulp-eslint');
+const gulpRename = require('gulp-rename');
+const gulpHeader = require('gulp-header');
 const babel = require('rollup-plugin-babel');
 const eslint = require('rollup-plugin-eslint');
-const gulpEslint = require('gulp-eslint');
 const pkg = require('../package.json');
-const buildByRollup = require('./rollupbuild').build;
+const walkByRollup = require('./rollupbuild').walk;
 
 const banner = ['/*!',
     ' * <%= pkg.name %> v<%= pkg.version %>',
@@ -28,44 +32,60 @@ if (!fs.existsSync(resolvePath(RELEASE_ROOT_PATH))) {
     fs.mkdirSync(resolvePath(RELEASE_ROOT_PATH));
 }
 
-gulp.task('build_source', () => buildByRollup({
+gulp.task('build_main', () => walkByRollup([{
     input: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
     plugins: [
         eslint({
             exclude: 'node_modules/**',
         }),
         babel({
-            // only transpile our source code
             exclude: 'node_modules/**',
         }),
     ],
-    // uglify在build中自动进行
     output: {
-        file: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.js`),
+        file: resolvePath(`${RELEASE_ROOT_PATH}/quick.js`),
     },
     format: 'umd',
     name: 'quick',
     banner,
     sourcemap: isSourceMap,
-}));    
+}]));
 
-gulp.task('build_dist', () => buildByRollup({
-    input: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
+gulp.task('build_api', () => walkByRollup([{
+    input: resolvePath(`${SOURCE_ROOT_PATH}/api/allh5.js`),
     plugins: [
+        eslint({
+            exclude: 'node_modules/**',
+        }),
         babel({
-            // only transpile our source code
             exclude: 'node_modules/**',
         }),
     ],
-    // uglify在build中自动进行
     output: {
-        file: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.min.js`),
+        file: resolvePath(`${RELEASE_ROOT_PATH}/quick.h5.js`),
     },
     format: 'umd',
     name: 'quick',
     banner,
     sourcemap: isSourceMap,
-}));
+}, {
+    input: resolvePath(`${SOURCE_ROOT_PATH}/api/allnative.js`),
+    plugins: [
+        eslint({
+            exclude: 'node_modules/**',
+        }),
+        babel({
+            exclude: 'node_modules/**',
+        }),
+    ],
+    output: {
+        file: resolvePath(`${RELEASE_ROOT_PATH}/quick.native.js`),
+    },
+    format: 'umd',
+    name: 'quick',
+    banner,
+    sourcemap: isSourceMap,
+}]));
 
 // eslint代码检查打包文件以外的文件
 gulp.task('eslint_others', () => gulp.src([
@@ -79,17 +99,33 @@ gulp.task('eslint_others', () => gulp.src([
 // 开启后如果报错会退出
 // .pipe(gulpEslint.failAfterError());
 
-gulp.task('build', ['build_source', 'build_dist', 'eslint_others']);
+gulp.task('build', ['build_main', 'build_api', 'eslint_others']);
 
-// 看守
+gulp.task('dist_js_uglify', () => gulp.src([
+    resolvePath(`${RELEASE_ROOT_PATH}/**/*.js`),
+    '!PATH'.replace('PATH', resolvePath(`${RELEASE_ROOT_PATH}/**/*.min.js`)),
+])
+    .pipe(gulpUglify())
+    .on('error', (err) => {
+        console.log('line number: %d, message: %s', err.lineNumber, err.message);
+        this.end();
+    })
+    .pipe(gulpRename({
+        suffix: '.min',
+    }))
+    .pipe(gulpHeader(banner))
+    .pipe(gulp.dest(resolvePath(RELEASE_ROOT_PATH))));
+
+gulp.task('dist', ['dist_js_uglify']);
+
+gulp.task('default', (callback) => {
+    gulpSequence('build', 'dist')(callback);
+});
+
 gulp.task('watch', () => {
-    // 看守所有位在 dist/  目录下的档案，一旦有更动，便进行重整
-    //  gulp.watch([config.src+'/gulpWatch.json']).on('change', function(file) {
-    //      console.log("改动");
-    //  });
     gulp.watch([
         resolvePath(`${SOURCE_ROOT_PATH}/**/*.js`),
         resolvePath('build/**/*.js'),
         resolvePath('test/**/*.js'),
-    ], ['build']);
+    ], ['default']);
 });
