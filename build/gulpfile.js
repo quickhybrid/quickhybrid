@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
-const rollup = require('rollup');
 const babel = require('rollup-plugin-babel');
-const uglify = require('rollup-plugin-uglify');
 const eslint = require('rollup-plugin-eslint');
 const gulpEslint = require('gulp-eslint');
 const pkg = require('../package.json');
+const buildByRollup = require('./rollupbuild').build;
 
 const banner = ['/*!',
     ' * <%= pkg.name %> v<%= pkg.version %>',
@@ -29,49 +28,44 @@ if (!fs.existsSync(resolvePath(RELEASE_ROOT_PATH))) {
     fs.mkdirSync(resolvePath(RELEASE_ROOT_PATH));
 }
 
-gulp.task('build_source', () => rollup.rollup({
-    entry: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
+gulp.task('build_source', () => buildByRollup({
+    input: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
     plugins: [
         eslint({
-            exclude: [
-                'node_modules/**',
-            ],
+            exclude: 'node_modules/**',
         }),
         babel({
             // only transpile our source code
             exclude: 'node_modules/**',
         }),
     ],
-})
-    .then((bundle) => {
-        bundle.write({
-            format: 'umd',
-            moduleName: 'quick',
-            banner,
-            dest: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.js`),
-            sourceMap: isSourceMap,
-        });
-    }));
+    // uglify在build中自动进行
+    output: {
+        file: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.js`),
+    },
+    format: 'umd',
+    name: 'quick',
+    banner,
+    sourcemap: isSourceMap,
+}));    
 
-gulp.task('build_dist', () => rollup.rollup({
-    entry: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
+gulp.task('build_dist', () => buildByRollup({
+    input: resolvePath(`${SOURCE_ROOT_PATH}/index.js`),
     plugins: [
         babel({
             // only transpile our source code
             exclude: 'node_modules/**',
         }),
-        uglify(),
     ],
-})
-    .then((bundle) => {
-        bundle.write({
-            format: 'umd',
-            moduleName: 'quick',
-            banner,
-            dest: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.min.js`),
-            sourceMap: isSourceMap,
-        });
-    }));
+    // uglify在build中自动进行
+    output: {
+        file: resolvePath(`${RELEASE_ROOT_PATH}/quickhybrid.min.js`),
+    },
+    format: 'umd',
+    name: 'quick',
+    banner,
+    sourcemap: isSourceMap,
+}));
 
 // eslint代码检查打包文件以外的文件
 gulp.task('eslint_others', () => gulp.src([
