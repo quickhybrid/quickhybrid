@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import {
     noop,
 } from '../src/util/lang';
-import quick from '../src/index';
+import hybridJs from '../src/index';
 import proxyMixin from '../src/core/proxy';
 import Promise from './inner/promise';
 
-proxyMixin(quick);
+proxyMixin(hybridJs);
 
 describe('创建proxy函数', () => {
     let callback;
@@ -28,7 +28,7 @@ describe('创建proxy函数', () => {
     it('proxy的销毁', () => {
         callback = noop;
         
-        const proxyObj = new quick.Proxy(api, callback);
+        const proxyObj = new hybridJs.Proxy(api, callback);
         
         proxyObj.dispose();
     });
@@ -42,7 +42,7 @@ describe('创建proxy函数', () => {
             done();
         };
         
-        const proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new hybridJs.Proxy(api, callback)).walk();
         
         proxyFun();
     });
@@ -56,21 +56,21 @@ describe('创建proxy函数', () => {
             done();
         };
         
-        const proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new hybridJs.Proxy(api, callback)).walk();
         
         proxyFun(params);
     });
     
     it('proxy时不传回调', () => {
         // 执行后市undefined
-        const proxyFun = (new quick.Proxy(api)).walk();
+        const proxyFun = (new hybridJs.Proxy(api)).walk();
 
         expect(proxyFun()).to.be.equal(undefined);
     });
     
     it('proxy使用promise resolve', (done) => {
-        quick.setPromise(Promise);
-        proxyMixin(quick);
+        hybridJs.setPromise(Promise);
+        proxyMixin(hybridJs);
         
         callback = function innerCallback(options, resolve) {
             expect(this.api).to.be.equal(api);
@@ -80,7 +80,7 @@ describe('创建proxy函数', () => {
             resolve(params);
         };
         
-        const proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new hybridJs.Proxy(api, callback)).walk();
         
         proxyFun(params).then((val) => {
             expect(val).to.be.equal(params);
@@ -90,8 +90,8 @@ describe('创建proxy函数', () => {
     });
     
     it('proxy使用promise reject', (done) => {
-        quick.setPromise(Promise);
-        proxyMixin(quick);
+        hybridJs.setPromise(Promise);
+        proxyMixin(hybridJs);
         
         callback = function innerCallback(options, resolve, reject) {
             expect(this.api).to.be.equal(api);
@@ -101,7 +101,7 @@ describe('创建proxy函数', () => {
             reject(params);
         };
         
-        const proxyFun = (new quick.Proxy(api, callback)).walk();
+        const proxyFun = (new hybridJs.Proxy(api, callback)).walk();
         
         proxyFun(params).catch((val) => {
             expect(val).to.be.equal(params);

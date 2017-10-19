@@ -1,9 +1,9 @@
 import mixin from './mixin';
 
-const quick = {};
+const hybridJs = {};
 
-mixin(quick);
+mixin(hybridJs);
 
-quick.Version = '1.0.0';
+hybridJs.Version = '1.0.0';
 
-export default quick;
+export default hybridJs;

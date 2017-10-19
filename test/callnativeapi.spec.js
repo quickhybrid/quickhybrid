@@ -4,14 +4,14 @@ import {
 import {
     noop,
 } from '../src/util/lang';
-import quick from '../src/index';
+import hybridJs from '../src/index';
 import Promise from './inner/promise';
 
 describe('直接调用原生api', () => {
     let curShotCallbackId;
 
     beforeEach(() => {
-        quick.os.quick = true;
+        hybridJs.os.quick = true;
         window.top.prompt = (uri) => {
             curShotCallbackId = uri.match(/\w+[:][/]{2}\w+[:](\d+)/)[1];
             expect(+curShotCallbackId).to.be.a('number');
@@ -19,7 +19,7 @@ describe('直接调用原生api', () => {
     });
 
     it('调用短期回调并（回调正确）', (done) => {
-        quick.callNativeApi({
+        hybridJs.callNativeApi({
             handlerName: 'foo',
             proto: 'test',
             data: undefined,
@@ -31,7 +31,7 @@ describe('直接调用原生api', () => {
             isEvent: undefined,
         });
 
-        quick.JSBridge._handleMessageFromNative({
+        hybridJs.JSBridge._handleMessageFromNative({
             responseId: curShotCallbackId,
             responseData: {
                 code: 1,
@@ -40,7 +40,7 @@ describe('直接调用原生api', () => {
     });
     
     it('调用空', () => {
-        quick.callNativeApi();
+        hybridJs.callNativeApi();
     });
 });
 
@@ -48,8 +48,8 @@ describe('Promise调用原生api', () => {
     let curShotCallbackId;
 
     beforeEach(() => {
-        quick.os.quick = true;
-        quick.setPromise(Promise);
+        hybridJs.os.quick = true;
+        hybridJs.setPromise(Promise);
         window.top.prompt = (uri) => {
             curShotCallbackId = uri.match(/\w+[:][/]{2}\w+[:](\d+)/)[1];
             expect(+curShotCallbackId).to.be.a('number');
@@ -57,7 +57,7 @@ describe('Promise调用原生api', () => {
     });
 
     it('promise调用短期回调并（回调正确）', (done) => {
-        quick.callNativeApi({
+        hybridJs.callNativeApi({
             handlerName: 'foo',
             proto: 'test',
             data: undefined,
@@ -69,7 +69,7 @@ describe('Promise调用原生api', () => {
             done();
         });
 
-        quick.JSBridge._handleMessageFromNative({
+        hybridJs.JSBridge._handleMessageFromNative({
             responseId: curShotCallbackId,
             responseData: {
                 code: 1,

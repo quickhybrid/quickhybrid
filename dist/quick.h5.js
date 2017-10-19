@@ -11,11 +11,11 @@
 	(factory());
 }(this, (function () { 'use strict';
 
-function uiMixin(hybridJs) {
-    var quick = hybridJs;
-    var innerUtil = quick.innerUtil;
+function uiMixin(hybrid) {
+    var hybridJs = hybrid;
+    var innerUtil = hybridJs.innerUtil;
 
-    quick.extendModule('ui', [{
+    hybridJs.extendModule('ui', [{
         namespace: 'alert',
         os: ['h5'],
         defaultParams: {
@@ -65,8 +65,8 @@ function uiMixin(hybridJs) {
     }]);
 }
 
-var quick = window.quick;
+var hybridJs = window.quick;
 
-uiMixin(quick);
+uiMixin(hybridJs);
 
 })));

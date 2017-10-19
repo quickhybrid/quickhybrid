@@ -6,10 +6,10 @@ import generateJSBridgeTrigger from '../inner/triggerjsbridge';
 /**
  * 如果api没有runcode，应该有一个默认的实现
  */
-export default function callinnerMixin(hybridJs) {
-    const quick = hybridJs;
-    const os = quick.os;
-    const JSBridge = quick.JSBridge;
+export default function callinnerMixin(hybrid) {
+    const hybridJs = hybrid;
+    const os = hybridJs.os;
+    const JSBridge = hybridJs.JSBridge;
     const callJsBridge = generateJSBridgeTrigger(JSBridge);
     
     /**
@@ -41,5 +41,5 @@ export default function callinnerMixin(hybridJs) {
         }
     }
     
-    quick.callInner = callInner;
+    hybridJs.callInner = callInner;
 }

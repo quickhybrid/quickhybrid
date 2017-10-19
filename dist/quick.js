@@ -14,7 +14,8 @@
 /**
  * 加入系统判断功能
  */
-function osMixin(hybridJs) {
+function osMixin(hybrid) {
+    var hybridJs = hybrid;
     var detect = function detect(ua) {
         this.os = {};
 
@@ -74,17 +75,17 @@ function osMixin(hybridJs) {
 /**
  * 不用pollyfill，避免体积增大
  */
-function promiseMixin(hybridJs) {
-    var quick = hybridJs;
+function promiseMixin(hybrid) {
+    var hybridJs = hybrid;
 
-    quick.Promise = window.Promise;
+    hybridJs.Promise = window.Promise;
 
-    quick.getPromise = function () {
-        return quick.Promise;
+    hybridJs.getPromise = function () {
+        return hybridJs.Promise;
     };
 
-    quick.setPromise = function (newPromise) {
-        quick.Promise = newPromise;
+    hybridJs.setPromise = function (newPromise) {
+        hybridJs.Promise = newPromise;
     };
 }
 
@@ -222,15 +223,15 @@ var globalError = {
 
 function warn(msg) {
     // 模板字符串
-    console.error("[quick error]: " + msg);
+    console.error("[hybridJs error]: " + msg);
 }
 
 function log(msg) {
-    console.log("[quick log]: " + msg);
+    console.log("[hybridJs log]: " + msg);
 }
 
-function errorMixin(hybridJs) {
-    var quick = hybridJs;
+function errorMixin(hybrid) {
+    var hybridJs = hybrid;
     var errorFunc = void 0;
 
     /**
@@ -249,9 +250,9 @@ function errorMixin(hybridJs) {
         });
     }
 
-    quick.showError = showError;
+    hybridJs.showError = showError;
 
-    quick.globalError = globalError;
+    hybridJs.globalError = globalError;
 
     /**
      * 当出现错误时，会通过这个函数回调给开发者，可以拿到里面的提示信息
@@ -260,17 +261,17 @@ function errorMixin(hybridJs) {
      * msg 错误信息
      * code 错误码
      */
-    quick.error = function error(callback) {
+    hybridJs.error = function error(callback) {
         errorFunc = callback;
     };
 }
 
 /**
- * 依赖于quick的基础库
+ * 依赖于以下的基础库
  * Promise
  */
-function proxyMixin(hybridJs) {
-    var quick = hybridJs;
+function proxyMixin(hybrid) {
+    var hybridJs = hybrid;
 
     /**
      * 对所有的API进行统一参数预处理，promise逻辑支持等操作
@@ -290,23 +291,23 @@ function proxyMixin(hybridJs) {
         var _this = this;
 
         // 实时获取promise
-        var Promise = quick.getPromise();
+        var Promise = hybridJs.getPromise();
 
         // 返回一个闭包函数
         return function () {
-            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                args[_key] = arguments[_key];
+            for (var _len = arguments.length, rest = Array(_len), _key = 0; _key < _len; _key++) {
+                rest[_key] = arguments[_key];
             }
 
-            var rest = args;
+            var args = rest;
 
-            rest[0] = rest[0] || {};
+            args[0] = args[0] || {};
 
             // 默认参数的处理
-            if (_this.api.defaultParams && rest[0] instanceof Object) {
+            if (_this.api.defaultParams && args[0] instanceof Object) {
                 Object.keys(_this.api.defaultParams).forEach(function (item) {
-                    if (rest[0][item] === undefined) {
-                        rest[0][item] = _this.api.defaultParams[item];
+                    if (args[0][item] === undefined) {
+                        args[0][item] = _this.api.defaultParams[item];
                     }
                 });
             }
@@ -321,13 +322,13 @@ function proxyMixin(hybridJs) {
 
             if (Promise) {
                 return finallyCallback && new Promise(function (resolve, reject) {
-                    // 拓展 rest
-                    rest = rest.concat([resolve, reject]);
-                    finallyCallback.apply(_this, rest);
+                    // 拓展 args
+                    args = args.concat([resolve, reject]);
+                    finallyCallback.apply(_this, args);
                 });
             }
 
-            return finallyCallback && finallyCallback.apply(_this, rest);
+            return finallyCallback && finallyCallback.apply(_this, args);
         };
     };
 
@@ -339,24 +340,24 @@ function proxyMixin(hybridJs) {
         this.callback = null;
     };
 
-    quick.Proxy = Proxy;
+    hybridJs.Proxy = Proxy;
 }
 
 /**
  * h5和原生交互，jsbridge核心代码
  * 依赖于showError，globalError，os
  */
-function jsbridgeMixin(hybridJs) {
-    var quick = hybridJs;
+function jsbridgeMixin(hybrid) {
+    var hybridJs = hybrid;
     // 定义一个JSBridge
     var JSBridge = {};
 
     // 声明依赖
-    var showError = quick.showError;
-    var globalError = quick.globalError;
-    var os = quick.os;
+    var showError = hybridJs.showError;
+    var globalError = hybridJs.globalError;
+    var os = hybridJs.os;
 
-    quick.JSBridge = JSBridge;
+    hybridJs.JSBridge = JSBridge;
 
     // jsbridge协议定义的名称
     var CUSTOM_PROTOCOL_SCHEME = 'QuickHybridJSBridge';
@@ -729,10 +730,10 @@ function generateJSBridgeTrigger(JSBridge) {
 /**
  * 如果api没有runcode，应该有一个默认的实现
  */
-function callinnerMixin(hybridJs) {
-    var quick = hybridJs;
-    var os = quick.os;
-    var JSBridge = quick.JSBridge;
+function callinnerMixin(hybrid) {
+    var hybridJs = hybrid;
+    var os = hybridJs.os;
+    var JSBridge = hybridJs.JSBridge;
     var callJsBridge = generateJSBridgeTrigger(JSBridge);
 
     /**
@@ -764,7 +765,7 @@ function callinnerMixin(hybridJs) {
         }
     }
 
-    quick.callInner = callInner;
+    hybridJs.callInner = callInner;
 }
 
 /**
@@ -777,13 +778,13 @@ function callinnerMixin(hybridJs) {
  * showError
  * callInner
  */
-function defineapiMixin(hybridJs) {
-    var quick = hybridJs;
-    var Proxy = quick.Proxy;
-    var globalError = quick.globalError;
-    var showError = quick.showError;
-    var os = quick.os;
-    var callInner = quick.callInner;
+function defineapiMixin(hybrid) {
+    var hybridJs = hybrid;
+    var Proxy = hybridJs.Proxy;
+    var globalError = hybridJs.globalError;
+    var showError = hybridJs.showError;
+    var os = hybridJs.os;
+    var callInner = hybridJs.callInner;
 
     /**
      * 存放所有的代理 api对象
@@ -862,7 +863,7 @@ function defineapiMixin(hybridJs) {
      * @param {String} moduleName 模块名
      */
     function observeModule(moduleName) {
-        Object.defineProperty(quick, moduleName, {
+        Object.defineProperty(hybridJs, moduleName, {
             configurable: true,
             enumerable: true,
             get: function proxyGetter() {
@@ -890,14 +891,14 @@ function defineapiMixin(hybridJs) {
         if (!apiParam || !apiParam.namespace) {
             return;
         }
-        if (!quick[moduleName]) {
+        if (!hybridJs[moduleName]) {
             // 如果没有定义模块，监听整个模块，用代理取值，防止重定义
             // 这样，模块只允许初次定义以及之后的赋值，其它操作都会被内部拒绝
             observeModule(moduleName);
         }
 
         var api = apiParam;
-        var modlue = quick[moduleName];
+        var modlue = hybridJs[moduleName];
         var apiNamespace = api.namespace;
 
         // api加上module关键字，方便内部处理
@@ -920,7 +921,7 @@ function defineapiMixin(hybridJs) {
         var apiRuncode = api.runCode;
 
         if (!apiRuncode && callInner) {
-            // 如果没有runcode，默认使用quick的callInner
+            // 如果没有runcode，默认使用callInner
             apiRuncode = callInner;
         }
 
@@ -958,7 +959,7 @@ function defineapiMixin(hybridJs) {
         if (!apis || !Array.isArray(apis)) {
             return;
         }
-        if (!quick[moduleName]) {
+        if (!hybridJs[moduleName]) {
             // 如果没有定义模块，监听整个模块，用代理取值，防止重定义
             // 这样，模块只允许初次定义以及之后的赋值，其它操作都会被内部拒绝
             observeModule(moduleName);
@@ -968,8 +969,8 @@ function defineapiMixin(hybridJs) {
         }
     }
 
-    quick.extendModule = extendModule;
-    quick.extendApi = extendApi;
+    hybridJs.extendModule = extendModule;
+    hybridJs.extendApi = extendApi;
 }
 
 /**
@@ -977,9 +978,9 @@ function defineapiMixin(hybridJs) {
  * 一般指调用原生环境下的API
  * 依赖于Promise,calljsbridgeMixin
  */
-function callnativeapiMixin(hybridJs) {
-    var quick = hybridJs;
-    var JSBridge = quick.JSBridge;
+function callnativeapiMixin(hybrid) {
+    var hybridJs = hybrid;
+    var JSBridge = hybridJs.JSBridge;
     var callJsBridge = generateJSBridgeTrigger(JSBridge);
 
     /**
@@ -989,7 +990,7 @@ function callnativeapiMixin(hybridJs) {
      */
     function callApi(options) {
         // 实时获取promise
-        var Promise = quick.getPromise();
+        var Promise = hybridJs.getPromise();
         var finalOptions = options || {};
 
         var callback = function callback(resolve, reject) {
@@ -1007,18 +1008,18 @@ function callnativeapiMixin(hybridJs) {
         return Promise && new Promise(callback) || callback();
     }
 
-    quick.callApi = callApi;
-    quick.callNativeApi = callApi;
+    hybridJs.callApi = callApi;
+    hybridJs.callNativeApi = callApi;
 }
 
 /**
  * 初始化给配置全局函数
  */
-function initMixin(hybridJs) {
-    var quick = hybridJs;
-    var globalError = quick.globalError;
-    var showError = quick.showError;
-    var JSBridge = quick.JSBridge;
+function initMixin(hybrid) {
+    var hybridJs = hybrid;
+    var globalError = hybridJs.globalError;
+    var showError = hybridJs.showError;
+    var JSBridge = hybridJs.JSBridge;
 
     /**
      * 几个全局变量 用来控制全局的config与ready逻辑
@@ -1034,14 +1035,14 @@ function initMixin(hybridJs) {
      * 是否版本号小于容器版本号，如果小于，给予升级提示
      */
     function checkEnvAndPrompt() {
-        if (!quick.runtime || !quick.runtime.getQuickVersion) {
+        if (!hybridJs.runtime || !hybridJs.runtime.getQuickVersion) {
             showError(globalError.ERROR_TYPE_VERSIONNOTSUPPORT.code, globalError.ERROR_TYPE_VERSIONNOTSUPPORT.msg);
         } else {
-            quick.runtime.getQuickVersion({
+            hybridJs.runtime.getQuickVersion({
                 success: function success(result) {
                     var version = result.version;
 
-                    if (compareVersion(quick.version, version) < 0) {
+                    if (compareVersion(hybridJs.version, version) < 0) {
                         showError(globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.code, globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.msg);
                     }
                 },
@@ -1059,7 +1060,7 @@ function initMixin(hybridJs) {
      * config的jsApiList主要是同来通知给原生进行注册的
      * 所以这个接口到时候需要向原生容器请求的
      */
-    quick.config = function config(params) {
+    hybridJs.config = function config(params) {
         if (isConfig) {
             showError(globalError.ERROR_TYPE_CONFIGMODIFY.code, globalError.ERROR_TYPE_CONFIGMODIFY.msg);
         } else {
@@ -1076,11 +1077,11 @@ function initMixin(hybridJs) {
                 }
             };
 
-            if (quick.os.quick) {
+            if (hybridJs.os.quick) {
                 // 暂时检查环境默认就进行，因为框架默认注册了基本api的，并且这样2.也可以给予相应提示
                 checkEnvAndPrompt();
 
-                quick.auth.config(extend({
+                hybridJs.auth.config(extend({
                     success: function success() {
                         _success();
                     },
@@ -1102,7 +1103,7 @@ function initMixin(hybridJs) {
      * ready只会触发一次，所以如果同时设置两个，第二个ready回调会无效
      * @param {Function} callback 回调函数
      */
-    quick.ready = function ready(callback) {
+    hybridJs.ready = function ready(callback) {
         if (!readyFunc) {
             readyFunc = callback;
             // 如果config先进行，然后才进行ready,这时候恰好又isAllowReady，代表ready可以直接自动执行
@@ -1124,35 +1125,35 @@ function initMixin(hybridJs) {
     });
 }
 
-function innerUtilMixin(hybridJs) {
-    var quick = hybridJs;
+function innerUtilMixin(hybrid) {
+    var hybridJs = hybrid;
     var innerUtil = {};
 
-    quick.innerUtil = innerUtil;
+    hybridJs.innerUtil = innerUtil;
 
     innerUtil.isObject = isObject;
 }
 
-function mixin(hybridJs) {
-    var quick = hybridJs;
+function mixin(hybrid) {
+    var hybridJs = hybrid;
 
-    osMixin(quick);
-    promiseMixin(quick);
-    errorMixin(quick);
+    osMixin(hybridJs);
+    promiseMixin(hybridJs);
+    errorMixin(hybridJs);
     // 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
-    proxyMixin(quick);
+    proxyMixin(hybridJs);
     // 依赖于showError，globalError，os
-    jsbridgeMixin(quick);
+    jsbridgeMixin(hybridJs);
     // api没有runcode时的默认实现，依赖于jsbridge与os
-    callinnerMixin(quick);
+    callinnerMixin(hybridJs);
     // 依赖于os，Proxy，globalError，showError，以及callInner
-    defineapiMixin(quick);
+    defineapiMixin(hybridJs);
     // 依赖于JSBridge，Promise,sbridge
-    callnativeapiMixin(quick);
+    callnativeapiMixin(hybridJs);
     // init依赖与基础库以及部分原生的API
-    initMixin(quick);
+    initMixin(hybridJs);
     // 给API快速使用的内部工具集
-    innerUtilMixin(quick);
+    innerUtilMixin(hybridJs);
 }
 
 var quick = {};

@@ -2,16 +2,16 @@ import { expect } from 'chai';
 import {
     noop,
 } from '../src/util/lang';
-import quick from '../src/index';
+import hybridJs from '../src/index';
 import defineapiMixin from '../src/core/defineapi';
 
 describe('拓展模块', () => {
     beforeEach(() => {
-        quick.os.h5 = true;
+        hybridJs.os.h5 = true;
     });
     
     it('拓展一个测试模块，并执行API', (done) => {
-        quick.extendModule('test', [{
+        hybridJs.extendModule('test', [{
             namespace: 'foo',
             os: ['h5'],
             defaultParams: {
@@ -23,13 +23,13 @@ describe('拓展模块', () => {
             },
         }]);
         
-        quick.test.foo({
+        hybridJs.test.foo({
             testKey2: 'test2',
         });
     });
     
     it('拓展一个模块，有a.b形式的命名空间API', (done) => {
-        quick.extendModule('test', [{
+        hybridJs.extendModule('test', [{
             namespace: 'parfoo.foo2',
             os: ['h5'],
             defaultParams: {
@@ -41,14 +41,14 @@ describe('拓展模块', () => {
             },
         }]);
         
-        quick.test.parfoo.foo2({
+        hybridJs.test.parfoo.foo2({
             testKey2: 'test2',
         });
     });
     
     it('拓展一个测试模块，内部无h5环境', (done) => {
-        quick.os.h5 = false;
-        quick.extendModule('test', [{
+        hybridJs.os.h5 = false;
+        hybridJs.extendModule('test', [{
             namespace: 'foo',
             os: ['h5'],
             defaultParams: {
@@ -60,29 +60,29 @@ describe('拓展模块', () => {
             },
         }]);
         
-        quick.test.foo();
+        hybridJs.test.foo();
     });
     
     it('拓展一个测试模块，不传os并调用', () => {
-        quick.os.h5 = false;
-        quick.extendModule('test', [{
+        hybridJs.os.h5 = false;
+        hybridJs.extendModule('test', [{
             namespace: 'foo2',
         }]);
         
-        quick.test.foo2();
+        hybridJs.test.foo2();
     });
     
     it('拓展模块，不加参数', () => {
-        quick.extendModule('test');
+        hybridJs.extendModule('test');
     });
     
     it('尝试修改已经拓展的模块', (done) => {
-        quick.error((err) => {
+        hybridJs.error((err) => {
             // 错误码要一致
-            expect(err.code).to.be.equal(quick.globalError.ERROR_TYPE_MODULEMODIFY.code);
+            expect(err.code).to.be.equal(hybridJs.globalError.ERROR_TYPE_MODULEMODIFY.code);
             done();
         });
-        quick.extendModule('test', [{
+        hybridJs.extendModule('test', [{
             namespace: 'foo',
             os: ['h5'],
             defaultParams: {
@@ -92,7 +92,7 @@ describe('拓展模块', () => {
             runCode() {},
         }]);
         
-        quick.test = 'xxx';
+        hybridJs.test = 'xxx';
     });
 });
 
@@ -101,15 +101,15 @@ describe('拓展API', () => {
     
     beforeEach(() => {
         index += 1;
-        quick.error(noop);
+        hybridJs.error(noop);
     });
     
     it('拓展一个API，非法参数', () => {
-        quick.extendApi('test2');
+        hybridJs.extendApi('test2');
     });
     
     it('拓展一个API', (done) => {
-        quick.extendApi('test2', {
+        hybridJs.extendApi('test2', {
             namespace: `api${index}`,
             os: ['h5'],
             runCode() {
@@ -117,49 +117,49 @@ describe('拓展API', () => {
             },
         });
         
-        quick.test2[`api${index}`]();
+        hybridJs.test2[`api${index}`]();
     });
     
     it('拓展一个API，然后尝试修改', (done) => {
-        quick.error((err) => {
+        hybridJs.error((err) => {
             // 错误码要一致
-            expect(err.code).to.be.equal(quick.globalError.ERROR_TYPE_APIMODIFY.code);
+            expect(err.code).to.be.equal(hybridJs.globalError.ERROR_TYPE_APIMODIFY.code);
             done();
         });
-        quick.extendApi('test2', {
+        hybridJs.extendApi('test2', {
             namespace: `api${index}`,
             os: ['h5'],
             runCode() {
             },
         });
         
-        quick.test2[`api${index}`] = 'sss';
+        hybridJs.test2[`api${index}`] = 'sss';
     });
     
     it('拓展一个API,无runcode,重新定义callInner', (done) => {
         const params = {
             testKey2: 'test2',
         };
-        quick.callInner = (options) => {
+        hybridJs.callInner = (options) => {
             expect(options).to.be.equal(params);
             done();
         };
-        defineapiMixin(quick);
-        quick.extendApi('test2', {
+        defineapiMixin(hybridJs);
+        hybridJs.extendApi('test2', {
             namespace: `api${index}`,
             os: ['h5'],
         });
         
-        quick.test2[`api${index}`](params);
+        hybridJs.test2[`api${index}`](params);
     });
     
-    it('拓展quick环境，调用h5环境', (done) => {
-        quick.error((err) => {
+    it('拓展native环境，调用h5环境', (done) => {
+        hybridJs.error((err) => {
             // 错误码要一致
-            expect(err.code).to.be.equal(quick.globalError.ERROR_TYPE_APIOS.code);
+            expect(err.code).to.be.equal(hybridJs.globalError.ERROR_TYPE_APIOS.code);
             done();
         });
-        quick.extendApi('test2', {
+        hybridJs.extendApi('test2', {
             namespace: `api${index}`,
             os: ['quick'],
             runCode() {
@@ -167,7 +167,7 @@ describe('拓展API', () => {
             },
         });
         
-        quick.test2[`api${index}`]();
+        hybridJs.test2[`api${index}`]();
         
         done();
     });

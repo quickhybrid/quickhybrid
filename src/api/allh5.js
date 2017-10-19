@@ -1,5 +1,5 @@
 import uiMixin from './h5/ui';
 
-const quick = window.quick;
+const hybridJs = window.quick;
 
-uiMixin(quick);
+uiMixin(hybridJs);

@@ -1,7 +1,7 @@
-export default function uiMixin(hybridJs) {
-    const quick = hybridJs;
+export default function uiMixin(hybrid) {
+    const hybridJs = hybrid;
     
-    quick.extendModule('ui', [{
+    hybridJs.extendModule('ui', [{
         namespace: 'alert',
         os: ['quick'],
         defaultParams: {

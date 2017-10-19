@@ -6,17 +6,17 @@ import {
  * h5和原生交互，jsbridge核心代码
  * 依赖于showError，globalError，os
  */
-export default function jsbridgeMixin(hybridJs) {
-    const quick = hybridJs;
+export default function jsbridgeMixin(hybrid) {
+    const hybridJs = hybrid;
     // 定义一个JSBridge
     const JSBridge = {};
     
     // 声明依赖
-    const showError = quick.showError;
-    const globalError = quick.globalError;
-    const os = quick.os;
+    const showError = hybridJs.showError;
+    const globalError = hybridJs.globalError;
+    const os = hybridJs.os;
 
-    quick.JSBridge = JSBridge;
+    hybridJs.JSBridge = JSBridge;
 
     // jsbridge协议定义的名称
     const CUSTOM_PROTOCOL_SCHEME = 'QuickHybridJSBridge';

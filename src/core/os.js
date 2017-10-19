@@ -1,7 +1,8 @@
 /**
  * 加入系统判断功能
  */
-export default function osMixin(hybridJs) {
+export default function osMixin(hybrid) {
+    const hybridJs = hybrid;
     const detect = function detect(ua) {
         this.os = {};
         

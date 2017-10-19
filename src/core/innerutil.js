@@ -2,11 +2,11 @@ import {
     isObject,
 } from '../util/lang';
 
-export default function innerUtilMixin(hybridJs) {
-    const quick = hybridJs;
+export default function innerUtilMixin(hybrid) {
+    const hybridJs = hybrid;
     const innerUtil = {};
     
-    quick.innerUtil = innerUtil;
+    hybridJs.innerUtil = innerUtil;
     
     innerUtil.isObject = isObject;
 }

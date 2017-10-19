@@ -9,11 +9,11 @@ import {
 /**
  * 初始化给配置全局函数
  */
-export default function initMixin(hybridJs) {
-    const quick = hybridJs;
-    const globalError = quick.globalError;
-    const showError = quick.showError;
-    const JSBridge = quick.JSBridge;
+export default function initMixin(hybrid) {
+    const hybridJs = hybrid;
+    const globalError = hybridJs.globalError;
+    const showError = hybridJs.showError;
+    const JSBridge = hybridJs.JSBridge;
     
     /**
      * 几个全局变量 用来控制全局的config与ready逻辑
@@ -29,16 +29,16 @@ export default function initMixin(hybridJs) {
      * 是否版本号小于容器版本号，如果小于，给予升级提示
      */
     function checkEnvAndPrompt() {
-        if ((!quick.runtime || !quick.runtime.getQuickVersion)) {
+        if ((!hybridJs.runtime || !hybridJs.runtime.getQuickVersion)) {
             showError(
                 globalError.ERROR_TYPE_VERSIONNOTSUPPORT.code,
                 globalError.ERROR_TYPE_VERSIONNOTSUPPORT.msg);
         } else {
-            quick.runtime.getQuickVersion({
+            hybridJs.runtime.getQuickVersion({
                 success: (result) => {
                     const version = result.version;
 
-                    if (compareVersion(quick.version, version) < 0) {
+                    if (compareVersion(hybridJs.version, version) < 0) {
                         showError(
                             globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.code,
                             globalError.ERROR_TYPE_VERSIONNEEDUPGRADE.msg);
@@ -60,7 +60,7 @@ export default function initMixin(hybridJs) {
      * config的jsApiList主要是同来通知给原生进行注册的
      * 所以这个接口到时候需要向原生容器请求的
      */
-    quick.config = function config(params) {
+    hybridJs.config = function config(params) {
         if (isConfig) {
             showError(
                 globalError.ERROR_TYPE_CONFIGMODIFY.code,
@@ -79,11 +79,11 @@ export default function initMixin(hybridJs) {
                 }
             };
 
-            if (quick.os.quick) {
+            if (hybridJs.os.quick) {
                 // 暂时检查环境默认就进行，因为框架默认注册了基本api的，并且这样2.也可以给予相应提示
                 checkEnvAndPrompt();
                 
-                quick.auth.config(extend({
+                hybridJs.auth.config(extend({
                     success() {
                         success();
                     },
@@ -107,7 +107,7 @@ export default function initMixin(hybridJs) {
      * ready只会触发一次，所以如果同时设置两个，第二个ready回调会无效
      * @param {Function} callback 回调函数
      */
-    quick.ready = function ready(callback) {
+    hybridJs.ready = function ready(callback) {
         if (!readyFunc) {
             readyFunc = callback;
             // 如果config先进行，然后才进行ready,这时候恰好又isAllowReady，代表ready可以直接自动执行

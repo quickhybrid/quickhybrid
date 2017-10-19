@@ -1,7 +1,7 @@
-export default function authMixin(hybridJs) {
-    const quick = hybridJs;
+export default function authMixin(hybrid) {
+    const hybridJs = hybrid;
     
-    quick.extendModule('auth', [{
+    hybridJs.extendModule('auth', [{
         namespace: 'getToken',
         os: ['quick'],
     }, {

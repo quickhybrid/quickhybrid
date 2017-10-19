@@ -9,24 +9,24 @@ import callnativeapiMixin from './core/callnativeapi';
 import initMixin from './core/init';
 import innerUtilMixin from './core/innerutil';
 
-export default function mixin(hybridJs) {
-    const quick = hybridJs;
+export default function mixin(hybrid) {
+    const hybridJs = hybrid;
     
-    osMixin(quick);
-    promiseMixin(quick);
-    errorMixin(quick);
+    osMixin(hybridJs);
+    promiseMixin(hybridJs);
+    errorMixin(hybridJs);
     // 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
-    proxyMixin(quick);
+    proxyMixin(hybridJs);
     // 依赖于showError，globalError，os
-    jsbridgeMixin(quick);
+    jsbridgeMixin(hybridJs);
     // api没有runcode时的默认实现，依赖于jsbridge与os
-    callinnerMixin(quick);
+    callinnerMixin(hybridJs);
     // 依赖于os，Proxy，globalError，showError，以及callInner
-    defineapiMixin(quick);
+    defineapiMixin(hybridJs);
     // 依赖于JSBridge，Promise,sbridge
-    callnativeapiMixin(quick);
+    callnativeapiMixin(hybridJs);
     // init依赖与基础库以及部分原生的API
-    initMixin(quick);
+    initMixin(hybridJs);
     // 给API快速使用的内部工具集
-    innerUtilMixin(quick);
+    innerUtilMixin(hybridJs);
 }

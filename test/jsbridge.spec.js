@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import {
     noop,
 } from '../src/util/lang';
-import quick from '../src/index';
+import hybridJs from '../src/index';
 import jsbridgeMixin from '../src/core/jsbridge';
 
-jsbridgeMixin(quick);
+jsbridgeMixin(hybridJs);
 
 describe('注册H5本地函数', () => {
     const handlerName = 'testH5';
@@ -24,16 +24,16 @@ describe('注册H5本地函数', () => {
             done();
         };
         
-        quick.JSBridge.registerHandler(handlerName, callback);
+        hybridJs.JSBridge.registerHandler(handlerName, callback);
         
-        quick.JSBridge._handleMessageFromNative({
+        hybridJs.JSBridge._handleMessageFromNative({
             handlerName,
             data,
         });
     });
     
     it('触发本地函时格式失败', (done) => {
-        quick.JSBridge._handleMessageFromNative('sss');
+        hybridJs.JSBridge._handleMessageFromNative('sss');
         
         done();
     });
@@ -41,7 +41,7 @@ describe('注册H5本地函数', () => {
 
 describe('短期回调API', () => {
     it('调用短期API，不回调', (done) => {
-        quick.JSBridge.callHandler('testModule', 'testFunc', {
+        hybridJs.JSBridge.callHandler('testModule', 'testFunc', {
             test: 'sss',
         }, noop);
         
@@ -49,7 +49,7 @@ describe('短期回调API', () => {
     });
     
     it('调用短期API，字符串参数', (done) => {
-        quick.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
+        hybridJs.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
             test: 'sss',
         }), noop);
         
@@ -57,18 +57,18 @@ describe('短期回调API', () => {
     });
     
     it('调用短期API，无参数', (done) => {
-        quick.JSBridge.callHandler('testModule', 'testFunc', null, noop);
+        hybridJs.JSBridge.callHandler('testModule', 'testFunc', null, noop);
         
         done();
     });
     
     it('调用短期API，Android环境', (done) => {
-        quick.os.quick = true;
-        quick.os.android = true;
+        hybridJs.os.quick = true;
+        hybridJs.os.android = true;
         
-        jsbridgeMixin(quick);
+        jsbridgeMixin(hybridJs);
         
-        quick.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
+        hybridJs.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
             test: 'sss',
         }), noop);
         
@@ -76,13 +76,13 @@ describe('短期回调API', () => {
     });
     
     it('调用短期API，iOS环境', (done) => {
-        quick.os.quick = true;
-        quick.os.ios = true;
+        hybridJs.os.quick = true;
+        hybridJs.os.ios = true;
         
-        jsbridgeMixin(quick);
+        jsbridgeMixin(hybridJs);
         
         const innerCallback = () => {
-            quick.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
+            hybridJs.JSBridge.callHandler('testModule', 'testFunc', JSON.stringify({
                 test: 'sss',
             }), noop);
         };
@@ -93,7 +93,7 @@ describe('短期回调API', () => {
     });
     
     afterEach(() => {
-        quick.os.quick = false;
+        hybridJs.os.quick = false;
     });
 });
 
@@ -111,11 +111,11 @@ describe('长期回调API', () => {
             done();
         };
         
-        longCbId = quick.JSBridge.getLongCallbackId();
-        quick.JSBridge.registerLongCallback(longCbId, callback);
-        quick.JSBridge.callHandler('testModlue', 'testFunc', {}, longCbId);
+        longCbId = hybridJs.JSBridge.getLongCallbackId();
+        hybridJs.JSBridge.registerLongCallback(longCbId, callback);
+        hybridJs.JSBridge.callHandler('testModlue', 'testFunc', {}, longCbId);
         
-        quick.JSBridge._handleMessageFromNative({
+        hybridJs.JSBridge._handleMessageFromNative({
             responseId: longCbId,
             responseData,
         });
@@ -130,10 +130,10 @@ describe('长期回调API', () => {
             done();
         };
         
-        longCbId = quick.JSBridge.getLongCallbackId();
-        quick.JSBridge.registerLongCallback(longCbId, callback);
+        longCbId = hybridJs.JSBridge.getLongCallbackId();
+        hybridJs.JSBridge.registerLongCallback(longCbId, callback);
         
-        quick.JSBridge._handleMessageFromNative(JSON.stringify({
+        hybridJs.JSBridge._handleMessageFromNative(JSON.stringify({
             responseId: longCbId,
             responseData,
         }));

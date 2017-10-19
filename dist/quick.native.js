@@ -11,10 +11,10 @@
 	(factory());
 }(this, (function () { 'use strict';
 
-function uiMixin(hybridJs) {
-    var quick = hybridJs;
+function uiMixin(hybrid) {
+    var hybridJs = hybrid;
 
-    quick.extendModule('ui', [{
+    hybridJs.extendModule('ui', [{
         namespace: 'alert',
         os: ['quick'],
         defaultParams: {
@@ -25,10 +25,10 @@ function uiMixin(hybridJs) {
     }]);
 }
 
-function authMixin(hybridJs) {
-    var quick = hybridJs;
+function authMixin(hybrid) {
+    var hybridJs = hybrid;
 
-    quick.extendModule('auth', [{
+    hybridJs.extendModule('auth', [{
         namespace: 'getToken',
         os: ['quick']
     }, {
@@ -47,10 +47,10 @@ function authMixin(hybridJs) {
     }]);
 }
 
-function runtimeMixin(hybridJs) {
-    var quick = hybridJs;
+function runtimeMixin(hybrid) {
+    var hybridJs = hybrid;
 
-    quick.extendModule('runtime', [{
+    hybridJs.extendModule('runtime', [{
         namespace: 'getAppVersion',
         os: ['quick']
     }, {
@@ -59,10 +59,10 @@ function runtimeMixin(hybridJs) {
     }]);
 }
 
-var quick = window.quick;
+var hybridJs = window.quick;
 
-uiMixin(quick);
-authMixin(quick);
-runtimeMixin(quick);
+uiMixin(hybridJs);
+authMixin(hybridJs);
+runtimeMixin(hybridJs);
 
 })));

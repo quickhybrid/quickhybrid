@@ -1,8 +1,8 @@
-export default function uiMixin(hybridJs) {
-    const quick = hybridJs;
-    const innerUtil = quick.innerUtil;
+export default function uiMixin(hybrid) {
+    const hybridJs = hybrid;
+    const innerUtil = hybridJs.innerUtil;
 
-    quick.extendModule('ui', [{
+    hybridJs.extendModule('ui', [{
         namespace: 'alert',
         os: ['h5'],
         defaultParams: {
@@ -10,29 +10,29 @@ export default function uiMixin(hybridJs) {
             message: '',
             buttonName: '确定',
         },
-        runCode(...rest) {
-            let options = rest[0];
-            let resolve = rest[1];
-            let reject = rest[2];
+        runCode(...args) {
+            let options = args[0];
+            let resolve = args[1];
+            let reject = args[2];
             
             // 支持简单的调用，alert(msg, title, btn)              
             if (!innerUtil.isObject(options)) {
                 options = {
-                    message: rest[0],
+                    message: args[0],
                     title: '',
                     buttonName: '确定',
                 };
                 // 处理快速调用时的 resolve 与参数关系
-                if (typeof rest[1] === 'string') {
-                    options.title = rest[0];
-                    options.message = rest[1];
-                    if (typeof rest[2] === 'string') {
-                        options.buttonName = rest[2];
-                        resolve = rest[3];
-                        reject = rest[4];
+                if (typeof args[1] === 'string') {
+                    options.title = args[0];
+                    options.message = args[1];
+                    if (typeof args[2] === 'string') {
+                        options.buttonName = args[2];
+                        resolve = args[3];
+                        reject = args[4];
                     } else {
-                        resolve = rest[2];
-                        reject = rest[3];
+                        resolve = args[2];
+                        reject = args[3];
                     }
                 }
             }

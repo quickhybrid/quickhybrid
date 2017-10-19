@@ -1,14 +1,14 @@
 /**
  * 不用pollyfill，避免体积增大
  */
-export default function promiseMixin(hybridJs) {
-    const quick = hybridJs;
+export default function promiseMixin(hybrid) {
+    const hybridJs = hybrid;
     
-    quick.Promise = window.Promise;
+    hybridJs.Promise = window.Promise;
     
-    quick.getPromise = () => quick.Promise;
+    hybridJs.getPromise = () => hybridJs.Promise;
     
-    quick.setPromise = (newPromise) => {
-        quick.Promise = newPromise;
+    hybridJs.setPromise = (newPromise) => {
+        hybridJs.Promise = newPromise;
     };
 }

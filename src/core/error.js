@@ -3,8 +3,8 @@ import {
     warn,
 } from '../util/debug';
 
-export default function errorMixin(hybridJs) {
-    const quick = hybridJs;
+export default function errorMixin(hybrid) {
+    const hybridJs = hybrid;
     let errorFunc;
     
     /**
@@ -20,9 +20,9 @@ export default function errorMixin(hybridJs) {
         });
     }
     
-    quick.showError = showError;
+    hybridJs.showError = showError;
     
-    quick.globalError = globalError;
+    hybridJs.globalError = globalError;
     
     /**
      * 当出现错误时，会通过这个函数回调给开发者，可以拿到里面的提示信息
@@ -31,7 +31,7 @@ export default function errorMixin(hybridJs) {
      * msg 错误信息
      * code 错误码
      */
-    quick.error = function error(callback) {
+    hybridJs.error = function error(callback) {
         errorFunc = callback;
     };
 }

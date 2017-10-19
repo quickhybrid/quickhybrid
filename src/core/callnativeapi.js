@@ -5,9 +5,9 @@ import generateJSBridgeTrigger from '../inner/triggerjsbridge';
  * 一般指调用原生环境下的API
  * 依赖于Promise,calljsbridgeMixin
  */
-export default function callnativeapiMixin(hybridJs) {
-    const quick = hybridJs;
-    const JSBridge = quick.JSBridge;
+export default function callnativeapiMixin(hybrid) {
+    const hybridJs = hybrid;
+    const JSBridge = hybridJs.JSBridge;
     const callJsBridge = generateJSBridgeTrigger(JSBridge);
     
     /**
@@ -17,7 +17,7 @@ export default function callnativeapiMixin(hybridJs) {
      */
     function callApi(options) {
         // 实时获取promise
-        const Promise = quick.getPromise();
+        const Promise = hybridJs.getPromise();
         const finalOptions = options || {};
 
         const callback = (resolve, reject) => {
@@ -36,6 +36,6 @@ export default function callnativeapiMixin(hybridJs) {
         return (Promise && new Promise(callback)) || callback();
     }
     
-    quick.callApi = callApi;
-    quick.callNativeApi = callApi;
+    hybridJs.callApi = callApi;
+    hybridJs.callNativeApi = callApi;
 }

@@ -12,63 +12,63 @@ import osMixin from '../src/core/os';
 import authMixin from '../src/api/native/auth';
 import runtimeMixin from '../src/api/native/runtime';
 
-let quick;
+let hybridJs;
 
 describe('H5下的config', () => {
     before(() => {
-        quick = {};
-        mixin(quick);
-        authMixin(quick);
-        runtimeMixin(quick);
+        hybridJs = {};
+        mixin(hybridJs);
+        authMixin(hybridJs);
+        runtimeMixin(hybridJs);
     });
 
     it('正常的ready', (done) => {
-        quick.config();
+        hybridJs.config();
 
-        quick.ready(() => {
+        hybridJs.ready(() => {
             expect(1).to.be.equal(1);
             done();
         });
     });
 
     it('H5多次config', (done) => {
-        quick.error(() => {
+        hybridJs.error(() => {
             expect(1).to.be.equal(1);
             done();
         });
 
-        quick.config();
+        hybridJs.config();
     });
 
     it('H5多次ready', (done) => {
-        quick.error(() => {
+        hybridJs.error(() => {
             expect(1).to.be.equal(1);
             done();
         });
 
-        quick.ready();
+        hybridJs.ready();
     });
 });
 
 describe('先ready再config', () => {
     before(() => {
-        quick = {};
-        mixin(quick);
-        authMixin(quick);
-        runtimeMixin(quick);
+        hybridJs = {};
+        mixin(hybridJs);
+        authMixin(hybridJs);
+        runtimeMixin(hybridJs);
     });
 
     it('正常ready成功', (done) => {
-        quick.ready(() => {
+        hybridJs.ready(() => {
             done();
         });
-        quick.config();
+        hybridJs.config();
     });
 });
 
 describe('触发注册的错误函数', () => {
     it('通过JSbridge触发', () => {
-        quick.JSBridge._handleMessageFromNative({
+        hybridJs.JSBridge._handleMessageFromNative({
             handlerName: 'handleError',
             data: {
                 test: 'test',
@@ -77,16 +77,16 @@ describe('触发注册的错误函数', () => {
     });
 });
 
-describe('quick环境的初始化', () => {
+describe('native环境的初始化', () => {
     let innerTrigger = noop;
 
     beforeEach(() => {
-        quick = {};
-        mixin(quick);
-        authMixin(quick);
-        runtimeMixin(quick);
-        quick.version = '1.0.0';
-        quick.os.quick = true;
+        hybridJs = {};
+        mixin(hybridJs);
+        authMixin(hybridJs);
+        runtimeMixin(hybridJs);
+        hybridJs.version = '1.0.0';
+        hybridJs.os.quick = true;
         window.top.prompt = (uri) => {
             const curMatch = uri.match(/\w+[:][/]{2}(\w+)[:](\d+)/);
             const curCallbackId = curMatch[2];
@@ -105,14 +105,14 @@ describe('quick环境的初始化', () => {
         innerTrigger = (curCallbackId, curCallbackName) => {
             if (curCallbackName === 'auth') {
                 // 立马回调
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 1,
                     },
                 });
             } else if (curCallbackName === 'runtime') {
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 1,
@@ -123,24 +123,24 @@ describe('quick环境的初始化', () => {
                 });
             }
         };
-        quick.ready(() => {
+        hybridJs.ready(() => {
             done();
         });
-        quick.config({});
+        hybridJs.config({});
     });
     
     it('ready,错误的config与错误的版本号', (done) => {
         innerTrigger = (curCallbackId, curCallbackName) => {
             if (curCallbackName === 'auth') {
                 // 立马回调
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 0,
                     },
                 });
             } else if (curCallbackName === 'runtime') {
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 0,
@@ -151,24 +151,24 @@ describe('quick环境的初始化', () => {
                 });
             }
         };
-        quick.error(() => {
+        hybridJs.error(() => {
             done();
         });
-        quick.config({});
+        hybridJs.config({});
     });
     
     it('ready,但给出错误的版本号', (done) => {
         innerTrigger = (curCallbackId, curCallbackName) => {
             if (curCallbackName === 'auth') {
                 // 立马回调
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 1,
                     },
                 });
             } else if (curCallbackName === 'runtime') {
-                quick.JSBridge._handleMessageFromNative({
+                hybridJs.JSBridge._handleMessageFromNative({
                     responseId: curCallbackId,
                     responseData: {
                         code: 1,
@@ -179,28 +179,28 @@ describe('quick环境的初始化', () => {
                 });
             }
         };
-        quick.ready(() => {
+        hybridJs.ready(() => {
             done();
         });
-        quick.config({});
+        hybridJs.config({});
     });
 });
 
-describe('quick环境，但是没有API', () => {
+describe('native环境，但是没有API', () => {
     beforeEach(() => {
-        quick = {};
-        errorMixin(quick);
-        jsbridgeMixin(quick);
-        initMixin(quick);
-        osMixin(quick);
-        quick.version = '1.0.0';
-        quick.os.quick = true;
+        hybridJs = {};
+        errorMixin(hybridJs);
+        jsbridgeMixin(hybridJs);
+        initMixin(hybridJs);
+        osMixin(hybridJs);
+        hybridJs.version = '1.0.0';
+        hybridJs.os.quick = true;
     });
     
-    it('由于没有API，并且是quick环境，ready失败', (done) => {
-        quick.error(() => {
+    it('由于没有API，并且是native环境，ready失败', (done) => {
+        hybridJs.error(() => {
             done();
         });
-        quick.config();
+        hybridJs.config();
     });
 });

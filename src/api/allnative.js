@@ -2,8 +2,8 @@ import uiMixin from './native/ui';
 import authMixin from './native/auth';
 import runtimeMixin from './native/runtime';
 
-const quick = window.quick;
+const hybridJs = window.quick;
 
-uiMixin(quick);
-authMixin(quick);
-runtimeMixin(quick);
+uiMixin(hybridJs);
+authMixin(hybridJs);
+runtimeMixin(hybridJs);

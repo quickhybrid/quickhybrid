@@ -12,13 +12,13 @@ import {
  * showError
  * callInner
  */
-export default function defineapiMixin(hybridJs) {
-    const quick = hybridJs;
-    const Proxy = quick.Proxy;
-    const globalError = quick.globalError;
-    const showError = quick.showError;
-    const os = quick.os;
-    const callInner = quick.callInner;
+export default function defineapiMixin(hybrid) {
+    const hybridJs = hybrid;
+    const Proxy = hybridJs.Proxy;
+    const globalError = hybridJs.globalError;
+    const showError = hybridJs.showError;
+    const os = hybridJs.os;
+    const callInner = hybridJs.callInner;
 
     /**
      * 存放所有的代理 api对象
@@ -100,7 +100,7 @@ export default function defineapiMixin(hybridJs) {
      * @param {String} moduleName 模块名
      */
     function observeModule(moduleName) {
-        Object.defineProperty(quick, moduleName, {
+        Object.defineProperty(hybridJs, moduleName, {
             configurable: true,
             enumerable: true,
             get: function proxyGetter() {
@@ -129,14 +129,14 @@ export default function defineapiMixin(hybridJs) {
         if (!apiParam || !apiParam.namespace) {
             return;
         }
-        if (!quick[moduleName]) {
+        if (!hybridJs[moduleName]) {
             // 如果没有定义模块，监听整个模块，用代理取值，防止重定义
             // 这样，模块只允许初次定义以及之后的赋值，其它操作都会被内部拒绝
             observeModule(moduleName);
         }
         
         const api = apiParam;
-        const modlue = quick[moduleName];
+        const modlue = hybridJs[moduleName];
         const apiNamespace = api.namespace;
 
         // api加上module关键字，方便内部处理
@@ -161,7 +161,7 @@ export default function defineapiMixin(hybridJs) {
         let apiRuncode = api.runCode;
 
         if (!apiRuncode && callInner) {
-            // 如果没有runcode，默认使用quick的callInner
+            // 如果没有runcode，默认使用callInner
             apiRuncode = callInner;
         }
 
@@ -199,7 +199,7 @@ export default function defineapiMixin(hybridJs) {
         if (!apis || !Array.isArray(apis)) {
             return;
         }
-        if (!quick[moduleName]) {
+        if (!hybridJs[moduleName]) {
             // 如果没有定义模块，监听整个模块，用代理取值，防止重定义
             // 这样，模块只允许初次定义以及之后的赋值，其它操作都会被内部拒绝
             observeModule(moduleName);
@@ -209,6 +209,6 @@ export default function defineapiMixin(hybridJs) {
         }
     }
     
-    quick.extendModule = extendModule;
-    quick.extendApi = extendApi;
+    hybridJs.extendModule = extendModule;
+    hybridJs.extendApi = extendApi;
 }

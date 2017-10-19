@@ -1,7 +1,7 @@
-export default function runtimeMixin(hybridJs) {
-    const quick = hybridJs;
+export default function runtimeMixin(hybrid) {
+    const hybridJs = hybrid;
     
-    quick.extendModule('runtime', [{
+    hybridJs.extendModule('runtime', [{
         namespace: 'getAppVersion',
         os: ['quick'],
     }, {

@@ -1,8 +1,8 @@
 export function warn(msg) {
     // 模板字符串
-    console.error(`[quick error]: ${msg}`);
+    console.error(`[hybridJs error]: ${msg}`);
 }
 
 export function log(msg) {
-    console.log(`[quick log]: ${msg}`);
+    console.log(`[hybridJs log]: ${msg}`);
 }
