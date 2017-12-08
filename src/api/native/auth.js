@@ -5,12 +5,6 @@ export default function authMixin(hybrid) {
         namespace: 'getToken',
         os: ['quick'],
     }, {
-        namespace: 'refreshToken',
-        os: ['quick'],
-    }, {
-        namespace: 'getUserInfo',
-        os: ['quick'],
-    }, {
         namespace: 'config',
         os: ['quick'],
         defaultParams: {

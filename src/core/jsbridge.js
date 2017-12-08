@@ -8,9 +8,12 @@ import {
  */
 export default function jsbridgeMixin(hybrid) {
     const hybridJs = hybrid;
-    // 定义一个JSBridge
-    const JSBridge = {};
     
+    // 必须要有一个全局的JSBridge，否则原生和H5无法通信
+    // 定义每次重新生成一个JSBridge
+    window.JSBridge = {};
+    
+    const JSBridge = window.JSBridge;
     // 声明依赖
     const showError = hybridJs.showError;
     const globalError = hybridJs.globalError;

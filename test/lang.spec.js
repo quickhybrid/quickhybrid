@@ -9,6 +9,7 @@ import {
     changeRelativePathToAbsolute,
     getFullPath,
     getFullUrlByParams,
+    isObject,
 } from '../src/util/lang';
 
 describe('extend方法', () => {
@@ -21,7 +22,7 @@ describe('extend方法', () => {
         obj1 = {
             company: 'epoint',
             product: {
-                ejs: 'ejs混合开发方案',
+                quick: 'quick混合开发方案',
             },
         };
 
@@ -164,5 +165,11 @@ describe('getFullUrlByParams', () => {
             a: 1,
             b: 2,
         })).to.satisfy(finalUrl => (finalUrl === `${getProjectBasePath()}abc.html?a=1&b=2`));
+    });
+});
+
+describe('isObject', () => {
+    it('判断是否是isObject', () => {
+        expect(isObject({})).to.be.equal(true);
     });
 });

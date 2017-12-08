@@ -94,7 +94,7 @@ export default function initMixin(hybrid) {
                             globalError.ERROR_TYPE_CONFIGERROR.code,
                             tips);
                     },
-                }, params));
+                }, params || {}));
             } else {
                 success();
             }

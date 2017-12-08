@@ -50,21 +50,14 @@ function osMixin(hybrid) {
             this.os.quick = true;
         }
 
-        // epoint的容器
-        var ejs = ua.match(/EpointEJS/i);
-
-        if (ejs) {
-            this.os.ejs = true;
-        }
-
         var dd = ua.match(/DingTalk/i);
 
         if (dd) {
             this.os.dd = true;
         }
 
-        // 如果ejs和钉钉以及quick都不是，则默认为h5
-        if (!ejs && !dd && !quick) {
+        // 如果钉钉以及quick都不是，则默认为h5
+        if (!dd && !quick) {
             this.os.h5 = true;
         }
     };
@@ -349,9 +342,12 @@ function proxyMixin(hybrid) {
  */
 function jsbridgeMixin(hybrid) {
     var hybridJs = hybrid;
-    // 定义一个JSBridge
-    var JSBridge = {};
 
+    // 必须要有一个全局的JSBridge，否则原生和H5无法通信
+    // 定义每次重新生成一个JSBridge
+    window.JSBridge = {};
+
+    var JSBridge = window.JSBridge;
     // 声明依赖
     var showError = hybridJs.showError;
     var globalError = hybridJs.globalError;
@@ -566,7 +562,8 @@ function jsbridgeMixin(hybrid) {
 }
 
 function isObject(object) {
-    return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1] === 'Object';
+    var classType = Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
+    return classType !== 'String' && classType !== 'Number' && classType !== 'Boolean' && classType !== 'Undefined' && classType !== 'Null';
 }
 
 var noop = function noop() {};
@@ -628,14 +625,38 @@ function compareVersion(version1, version2) {
  * @return {string} 返回截取后的字符串
  * 暂时不考虑只遍历一部分的性能问题，因为在应用场景内是微不足道的
  */
+function eclipseText() {
+    var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    var count = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
 
+    var LEN_CHINESE = 2;
+    var LEN_ENGLISH = 1;
+    var num = 0;
+
+    return str.split('').filter(function (ch) {
+        num += /[\u4e00-\u9fa5]/.test(ch) ? LEN_CHINESE : LEN_ENGLISH;
+
+        return num <= count;
+    }).join('');
+}
 
 /**
  * 得到一个项目的根路径
  * h5模式下例如:http://id:端口/项目名/
  * @return {String} 项目的根路径
  */
+function getProjectBasePath() {
+    var locObj = window.location;
+    var patehName = locObj.pathname;
+    var pathArray = patehName.split('/');
+    // 如果是 host/xxx.html 则是/，如果是host/project/xxx.html,则是project/
+    // pathName一般是 /context.html 或 /xxx/xx/content.html
+    var hasProject = pathArray.length > 2;
+    var contextPath = pathArray[Number(hasProject)] + '/';
 
+    // 如果尾部有两个//替换成一个
+    return (locObj.protocol + '//' + locObj.host + '/' + contextPath).replace(/[/]{2}$/, '/');
+}
 
 /**
  * 将相对路径转为绝对路径 ./ ../ 开头的  为相对路径
@@ -643,14 +664,44 @@ function compareVersion(version1, version2) {
  * @param {String} path 需要转换的路径
  * @return {String} 返回转换后的路径
  */
+function changeRelativePathToAbsolute(path) {
+    var locObj = window.location;
+    var patehName = locObj.pathname;
+    // 匹配相对路径返回父级的个数
+    var relatives = path.match(/\.\.\//g);
+    var count = relatives && relatives.length || 0;
+    // 将patehName拆为数组，然后计算当前的父路径，需要去掉相应相对路径的层级
+    var pathArray = patehName.split('/');
+    var parentPath = pathArray.slice(0, pathArray.length - (count + 1)).join('/');
+    var childPath = path.replace(/\.+\//g, '');
+    // 找到最后的路径， 通过正则 去除 ./ 之前的所有路径
+    var finalPath = parentPath + '/' + childPath;
 
+    finalPath = locObj.protocol + '//' + locObj.host + finalPath;
+
+    return finalPath;
+}
 
 /**
  * 得到一个全路径
  * @param {String} path 路径
  * @return {String} 返回最终的路径
  */
+function getFullPath(path) {
+    // 全路径
+    if (/^(http|https|ftp|\/\/)/g.test(path)) {
+        return path;
+    }
 
+    // 是否是相对路径
+    var isRelative = /(\.\/)|(\.\.\/)/.test(path);
+
+    if (isRelative) {
+        return changeRelativePathToAbsolute(path);
+    }
+
+    return '' + getProjectBasePath() + path;
+}
 
 /**
  * 将json参数拼接到url中
@@ -658,6 +709,28 @@ function compareVersion(version1, version2) {
  * @param {Object} data 需要添加的json数据
  * @return {String} 返回最终的url
  */
+function getFullUrlByParams() {
+    var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    var data = arguments[1];
+
+    var fullUrl = getFullPath(url);
+    var extrasDataStr = '';
+
+    if (data) {
+        Object.keys(data).forEach(function (item) {
+            if (extrasDataStr.indexOf('?') === -1 && fullUrl.indexOf('?') === -1) {
+                extrasDataStr += '?';
+            } else {
+                extrasDataStr += '&';
+            }
+            extrasDataStr += item + '=' + data[item];
+        });
+    }
+
+    fullUrl += extrasDataStr;
+
+    return fullUrl;
+}
 
 /**
  * 内部触发jsbridge的方式，作为一个工具类提供
@@ -833,7 +906,7 @@ function defineapiMixin(hybrid) {
                 // 确保get得到的函数一定是能执行的
                 var nameSpaceApi = proxysApis[finalNameSpace];
                 // 得到当前是哪一个环境，获得对应环境下的代理对象
-                var proxyObj = nameSpaceApi[getCurrProxyApiOs(os)];
+                var proxyObj = nameSpaceApi[getCurrProxyApiOs(os)] || nameSpaceApi.h5;
 
                 if (proxyObj) {
                     /**
@@ -936,7 +1009,7 @@ function defineapiMixin(hybrid) {
                 // 如果存在这个os，并且合法，重新定义
                 proxysApis[finalNameSpace][osTmp] = newApiProxy;
                 oldProxyOsNotUse[osTmp] = true;
-            } else {
+            } else if (oldProxyNamespace[osTmp]) {
                 // 否则仍然使用老版本的代理
                 proxysApis[finalNameSpace][osTmp] = oldProxyNamespace[osTmp];
                 // api本身的os要添加这个环境，便于提示
@@ -1090,7 +1163,7 @@ function initMixin(hybrid) {
 
                         showError(globalError.ERROR_TYPE_CONFIGERROR.code, tips);
                     }
-                }, params));
+                }, params || {}));
             } else {
                 _success();
             }
@@ -1131,7 +1204,69 @@ function innerUtilMixin(hybrid) {
 
     hybridJs.innerUtil = innerUtil;
 
+    /**
+     * 将参数兼容字符串形式，返回新的args
+     * 正常应该是 object, resolve, reject
+     * 兼容的字符串可能是 key1, (key2, key3,) ..., resolve, reject
+     * @param {Object} args 原始的参数
+     * @param {Object} rest 剩余的参数，相当于从arguments1开始算起
+     * @return {Object} 返回标准的参数
+     */
+    function compatibleStringParamsToObject(args) {
+        var _this = this;
+
+        var newArgs = args;
+
+        if (!innerUtil.isObject(newArgs[0])) {
+            var options = {};
+            var isPromise = !!hybridJs.getPromise();
+            var len = newArgs.length;
+            var paramsLen = isPromise ? len - 2 : len;
+
+            // 填充字符串key，排除最后的resolve与reject
+
+            for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                rest[_key - 1] = arguments[_key];
+            }
+
+            for (var i = 0; i < paramsLen; i += 1) {
+                // 注意映射关系，rest[0]相当于以前的arguments[1]
+                if (rest[i] !== undefined) {
+                    options[rest[i]] = newArgs[i];
+                }
+            }
+
+            // 分别为options，resolve，reject
+            newArgs[0] = options;
+            if (isPromise) {
+                newArgs[1] = newArgs[len - 2];
+                newArgs[2] = newArgs[len - 1];
+            } else {
+                // 去除普通参数对resolve与reject的影响
+                newArgs[1] = undefined;
+                newArgs[2] = undefined;
+            }
+        }
+
+        // 默认参数的处理，因为刚兼容字符串后是没有默认参数的
+        if (this.api && this.api.defaultParams && newArgs[0] instanceof Object) {
+            Object.keys(this.api.defaultParams).forEach(function (item) {
+                if (newArgs[0][item] === undefined) {
+                    newArgs[0][item] = _this.api.defaultParams[item];
+                }
+            });
+        }
+
+        // 否则已经是标准的参数形式，直接返回
+        return newArgs;
+    }
+
+    innerUtil.extend = extend;
     innerUtil.isObject = isObject;
+    innerUtil.getFullPath = getFullPath;
+    innerUtil.getFullUrlByParams = getFullUrlByParams;
+    innerUtil.eclipseText = eclipseText;
+    innerUtil.compatibleStringParamsToObject = compatibleStringParamsToObject;
 }
 
 function mixin(hybrid) {
@@ -1140,7 +1275,7 @@ function mixin(hybrid) {
     osMixin(hybridJs);
     promiseMixin(hybridJs);
     errorMixin(hybridJs);
-    // 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
+    // 赖于promise，是否有Promise决定返回promise对象还是普通函数
     proxyMixin(hybridJs);
     // 依赖于showError，globalError，os
     jsbridgeMixin(hybridJs);
@@ -1156,12 +1291,12 @@ function mixin(hybrid) {
     innerUtilMixin(hybridJs);
 }
 
-var quick = {};
+var hybridJs = {};
 
-mixin(quick);
+mixin(hybridJs);
 
-quick.Version = '1.0.0';
+hybridJs.Version = '1.0.0';
 
-return quick;
+return hybridJs;
 
 })));

@@ -1,0 +1,235 @@
+<!DOCTYPE html >
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="pragma" content="no-cache">
+        <meta http-equiv="cache-control" content="no-cache">
+        <meta http-equiv="expires" content="0">
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+        <title>ui</title>
+        <link rel="stylesheet" href="../common/mui/mui.css" />
+        <link rel="stylesheet" href="../common/mui.picker/mui.picker.css" />
+        <link rel="stylesheet" href="../common/mui.poppicker/mui.poppicker.css" />
+        <link rel="stylesheet" href="../common/common.css" />
+    </head>
+
+    <body>
+
+        <div class="mui-content pt0">
+            <ul class="mui-table-view ">
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="toast">toast(提示窗)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="alert">alert(确认窗)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="confirm">confirm(确认窗)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="prompt">prompt(输入窗)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="actionSheet">actionSheet(操作列表)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="popWindow">popWindow(弹出窗口)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="pickDate">pickDate(选择日期)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="pickTime">pickTime(选择时间)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="pickDateTime">pickTime(选择日期时间)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="showWaiting">showWaiting(显示等待窗)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="popPicker">popPicker(h5选择)</a>
+                </li>
+            </ul>
+        </div>
+        <script type="text/javascript" src="../common/mui/mui.js"></script>
+        <script type="text/javascript" src="../common/mui.picker/mui.picker.js" ></script>
+        <script type="text/javascript" src="../common/mui.poppicker/mui.poppicker.js" ></script>
+        <script type="text/javascript" src="../../dist/quick.js"></script>
+        <script type="text/javascript" src="../../dist/quick.native.js"></script>
+        <script type="text/javascript" src="../../dist/quick.h5.js"></script>
+        <script type="text/javascript" src="../common/common.js"></script>
+        <script>
+            window.runApi = function(id) {
+                console.log('执行API:' + id);
+
+                switch (id) {
+                    case 'toast':
+                        quick.ui.toast('sd#ddd测试');
+
+                        break;
+                    case 'alert':
+                        quick.ui.alert({
+                            title: '提示',
+                            message: 'sd#ddd测试',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        // quick.ui.alert('sd#ddd测试', 'title');
+                        break;
+                    case 'confirm':
+                        quick.ui.confirm({
+                            title: "是否选择",
+                            message: 'sd#ddd测试',
+                            buttonLabels: ['取消', '确定'],
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'prompt':
+                        quick.ui.prompt({
+                            title: "测试输入",
+                            hint: "",
+                            text: "测试",
+                            lines: 1,
+                            maxLength: 10000,
+                            buttonLabels: ['取消', '确定'],
+                            // 默认可取消
+                            cancelable: 1,
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'actionSheet':
+                        quick.ui.actionSheet({
+                            items: ['远野贵树', '篠原明里', '澄田花苗', '立花泷', '宫水三叶'],
+                            // 默认可取消
+                            cancelable: 1,
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+
+                        break;
+                    case 'showWaiting':
+                        quick.ui.showWaiting({
+                            message: '正在加载中...',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                                setTimeout(function() {
+                                    quick.ui.closeWaiting();
+                                }, 2000);
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        // quick.ui.showWaiting('正在加载中...');
+                        break;
+                    case 'pickDate':
+                        quick.ui.pickDate({
+                            title: 'pickDate',
+                            datetime: '2016-12-05',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+
+                        break;
+                    case 'pickTime':
+                        quick.ui.pickTime({
+                            title: 'pickTime',
+                            datetime: '10:20',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'pickDateTime':
+                        quick.ui.pickDateTime({
+                            title1: '选择日期',
+                            title2: '选择时间',
+                            datetime: '2016-12-05 10:20',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'pickMonth':
+                        quick.ui.pickMonth({
+                            title: '选择月份',
+                            datetime: '2017-06',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'popWindow':
+                        var iconSrc = 'http://app.epoint.com.cn/staticResource/img_head.png';
+
+                        quick.ui.popWindow({
+                            titleItems: ['立花泷', '宫水三叶'],
+                            iconItems: [iconSrc, './images/testgallery1.jpg'],
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'popPicker':
+                        quick.ui.popPicker({
+                            layer: 1,
+                            data: [{
+                                value: 'value1',
+                                text: 'text1'
+                            }, {
+                                value: 'value2',
+                                text: 'text2'
+                            }],
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    default:
+                        console.error('错误！没有相应API');
+                }
+            };
+        </script>
+
+    </body>
+
+</html>

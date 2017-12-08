@@ -6,30 +6,30 @@ import {
 } from './inner/hackwindow';
 
 const ORIGINAL_NAVIGATOR = navigator.userAgent;
-let ejs;
+let quick;
 
 describe('H5环境', () => {
     before(() => {
-        ejs = {};
-        osMixin(ejs);
+        quick = {};
+        osMixin(quick);
     });
     
     it('默认为h5', () => {
-        expect(ejs.os.h5).to.be.equal(true);
+        expect(quick.os.h5).to.be.equal(true);
     });
 
     it('默认其它os都为假', () => {
-        expect(ejs.os.dd).to.be.equal(undefined);
-        expect(ejs.os.ejs).to.be.equal(undefined);
+        expect(quick.os.dd).to.be.equal(undefined);
+        expect(quick.os.quick).to.be.equal(undefined);
     });
     
     it('默认非Android与iOS', () => {
-        expect(ejs.os.android).to.be.equal(undefined);
-        expect(ejs.os.ios).to.be.equal(undefined);
+        expect(quick.os.android).to.be.equal(undefined);
+        expect(quick.os.ios).to.be.equal(undefined);
         
-        expect(ejs.os.isBadAndroid).to.be.equal(undefined);
-        expect(ejs.os.ipad).to.be.equal(undefined);
-        expect(ejs.os.iphone).to.be.equal(undefined);
+        expect(quick.os.isBadAndroid).to.be.equal(undefined);
+        expect(quick.os.ipad).to.be.equal(undefined);
+        expect(quick.os.iphone).to.be.equal(undefined);
     });
 });
 
@@ -39,24 +39,24 @@ describe('模拟Android', () => {
     
     before(() => {
         // 在本区块的所有测试用例之前执行
-        ejs = {};
+        quick = {};
         
         setUserAgent(AGENT_ANDROID);
         setAppVersion(APPVERSION_BAD_ANDROID);
         
-        osMixin(ejs);
+        osMixin(quick);
     });
     
     it('为Android环境', () => {
-        expect(ejs.os.android).to.be.equal(true);
+        expect(quick.os.android).to.be.equal(true);
     });
     
     it('版本匹配', () => {
-        expect(ejs.os.version).to.be.equal('1.0.2');
+        expect(quick.os.version).to.be.equal('1.0.2');
     });
     
     it('为badAndroid', () => {
-        expect(ejs.os.isBadAndroid).to.be.equal(true);
+        expect(quick.os.isBadAndroid).to.be.equal(true);
     });
     
     after(() => {
@@ -69,23 +69,23 @@ describe('模拟iphone', () => {
     
     before(() => {
         // 在本区块的所有测试用例之前执行
-        ejs = {};
+        quick = {};
         
         setUserAgent(AGENT_IPHONE);
         
-        osMixin(ejs);
+        osMixin(quick);
     });
     
     it('为iOS环境', () => {
-        expect(ejs.os.ios).to.be.equal(true);
+        expect(quick.os.ios).to.be.equal(true);
     });
     
     it('为iphone环境', () => {
-        expect(ejs.os.iphone).to.be.equal(true);
+        expect(quick.os.iphone).to.be.equal(true);
     });
     
     it('版本号匹配', () => {
-        expect(ejs.os.version).to.be.equal('1.0.1');
+        expect(quick.os.version).to.be.equal('1.0.1');
     });
     
     after(() => {
@@ -98,23 +98,23 @@ describe('模拟ipad', () => {
     
     before(() => {
         // 在本区块的所有测试用例之前执行
-        ejs = {};
+        quick = {};
         
         setUserAgent(AGENT_IPAD);
         
-        osMixin(ejs);
+        osMixin(quick);
     });
     
     it('为iOS环境', () => {
-        expect(ejs.os.ios).to.be.equal(true);
+        expect(quick.os.ios).to.be.equal(true);
     });
     
     it('为ipad环境', () => {
-        expect(ejs.os.ipad).to.be.equal(true);
+        expect(quick.os.ipad).to.be.equal(true);
     });
     
     it('版本号匹配', () => {
-        expect(ejs.os.version).to.be.equal('1.0.2');
+        expect(quick.os.version).to.be.equal('1.0.2');
     });
     
     after(() => {
@@ -122,30 +122,25 @@ describe('模拟ipad', () => {
     });
 });
 
-describe('模拟quick、dd与ejs', () => {
+describe('模拟quick、dd与quick', () => {
     const AGENT_QUICK = 'QuickHybrid1.0.1';
-    const AGENT_EJS = 'EpointEJS1.0.1';
     const AGENT_DD = 'DingTalk1.0.1';
     
     before(() => {
         // 在本区块的所有测试用例之前执行
-        ejs = {};
+        quick = {};
         
-        setUserAgent(AGENT_EJS + AGENT_DD + AGENT_QUICK);
+        setUserAgent(AGENT_DD + AGENT_QUICK);
         
-        osMixin(ejs);
+        osMixin(quick);
     });
     
     it('为quick环境', () => {
-        expect(ejs.os.quick).to.be.equal(true);
-    });
-    
-    it('为ejs环境', () => {
-        expect(ejs.os.ejs).to.be.equal(true);
+        expect(quick.os.quick).to.be.equal(true);
     });
     
     it('为DD环境', () => {
-        expect(ejs.os.dd).to.be.equal(true);
+        expect(quick.os.dd).to.be.equal(true);
     });
     
     after(() => {

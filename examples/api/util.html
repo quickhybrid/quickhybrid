@@ -1,0 +1,159 @@
+<!DOCTYPE html >
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="pragma" content="no-cache">
+        <meta http-equiv="cache-control" content="no-cache">
+        <meta http-equiv="expires" content="0">
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+        <title>util</title>
+        <link rel="stylesheet" href="../common/mui/mui.css" />
+        <link rel="stylesheet" href="../common/common.css" />
+    </head>
+
+    <body>
+
+        <div class="mui-content pt0">
+            <ul class="mui-table-view ">
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="scan">scan(扫描二维码)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="selectImage">selectImage(选择图片)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="selectFile">selectFile(选择文件)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="cameraImage">cameraImage(拍照)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="openFile">openFile(打开文件)</a>
+                </li>
+            </ul>
+        </div>
+        <script type="text/javascript" src="../common/mui/mui.js"></script>
+        <script type="text/javascript" src="../../dist/quick.js"></script>
+        <script type="text/javascript" src="../../dist/quick.native.js"></script>
+        <script type="text/javascript" src="../../dist/quick.h5.js"></script>
+        <script type="text/javascript" src="../common/common.js"></script>
+        <script>
+            quick.error(function(message) {
+                alert('错误:' + JSON.stringify(message));
+            });
+            quick.config();
+            quick.ready(function() {
+                showTips('注册成功');
+            });
+
+            var globalFilePath;
+
+            window.runApi = function(id) {
+                console.log('执行API:' + id);
+
+                switch (id) {
+                    case 'scan':
+                        quick.util.scan({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'selectImage':
+                        quick.util.selectImage({
+                            // 图片数量
+                            photoCount: 9,
+                            // 是否显示gif图片，1：显示；0：不显示
+                            showGif: 0,
+                            // 是否允许预览，1：允许，0：不允许
+                            previewEnabled: 1,
+                            // 已选图片，json数组格式，item为元素本地地址
+                            selectedPhotos: [],
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'cameraImage':
+                        quick.util.cameraImage({
+                            // 宽度
+                            width: 720,
+                            // 压缩质量
+                            quality: 70,
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'selectFile':
+                        quick.util.selectFile({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'openFile':
+                        if (!globalFilePath) {
+                            quick.ui.confirm({
+                                title: "请选择文件",
+                                message: "还没有选择文件，是否现在选择？",
+                                buttonLabels: ['取消', '确定'],
+                                success: function(result) {
+                                    if (result.which == 1) {
+                                        quick.util.selectFile({}, function(result) {
+                                            globalFilePath = result.resultData;
+                                            openFile();
+                                        }, function(error) {
+                                            showTips('选择文件失败:' + JSON.stringify(error));
+                                        });
+                                    }
+                                }
+                            });
+                            return;
+                        } else {
+                            openFile();
+                        }
+                        break;
+                    default:
+                        console.error('错误！没有相应API');
+                }
+            };
+
+            function openFile() {
+                quick.ui.confirm({
+                    title: "打开文件",
+                    message: "是否打开这个文件:" + globalFilePath,
+                    buttonLabels: ['取消', '确定'],
+                    success: function(result) {
+                        if (result.which == 1) {
+                            quick.util.openFile({
+                                path: globalFilePath,
+                                success: function(result) {
+                                    showTips(JSON.stringify(result));
+                                },
+                                error: function(error) {
+                                    showTips('失败:' + JSON.stringify(error));
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        </script>
+
+    </body>
+
+</html>

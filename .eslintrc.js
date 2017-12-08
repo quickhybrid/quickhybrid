@@ -18,16 +18,19 @@ module.exports = {
         'browser': true,
         'es6': true,
         'mocha': true,
-        "node": true
+        "node": true,
     },
     'globals': {
-        'Babel': true
+        'Babel': true,
+        'mui': true,
+        'quick': true,
     },
     // add your custom rules here
     'rules': {
         // 关闭react拓展
         'jsx-a11y/href-no-hash': 0,
         'react/require-extension': 0,
+        "import/no-extraneous-dependencies": 0,
         // 只允许对ejs这个参数的属性二次赋值
         // 'no-param-reassign': [2, { 'props': true, 'ignorePropertyModificationsFor': ['ejs'] }],
         // 强制一行的最大长度
@@ -37,6 +40,8 @@ module.exports = {
         // 允许++和--
         //'no-plusplus': 0,        
         // 文件末尾强制换行，目前暂时放弃，考虑到一些Idle的格式化问题
+        // 允许空的catch
+        "no-empty": [2, { "allowEmptyCatch": true }],
         'eol-last': 0,
         //强制使用一致的缩进，4个空格
         'indent': [2, 4, {

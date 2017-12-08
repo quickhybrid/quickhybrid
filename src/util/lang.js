@@ -6,7 +6,12 @@ export function getNow() {
 }
 
 export function isObject(object) {
-    return Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1] === 'Object';
+    const classType = Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1];
+    return classType !== 'String'
+        && classType !== 'Number'
+        && classType !== 'Boolean'
+        && classType !== 'Undefined'
+        && classType !== 'Null';
 }
 
 export const noop = () => {};

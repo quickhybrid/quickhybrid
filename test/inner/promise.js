@@ -1,15 +1,3 @@
-/**
- * 作者: 戴荔春
- * 创建时间: 2017/07/25
- * 版本: [1.0, 2017/07/25 ]
- * 版权: 江苏国泰新点软件有限公司
- * 描述:  promise实现 ES6标准
- * 支持标准的then catch all race resolve reject
- * 拓展了 done finally delay try stop
- * 基于标准: https://promisesaplus.com/
- * 参考: https://zhuanlan.zhihu.com/p/21834559
- * 测试工具（测试是否符合标准）: https://github.com/promises-aplus/promises-tests
- */
 const Promise = (function () {
     /**
      * 三个状态

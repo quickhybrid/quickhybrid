@@ -69,7 +69,7 @@ export default function defineapiMixin(hybrid) {
                 // 确保get得到的函数一定是能执行的
                 const nameSpaceApi = proxysApis[finalNameSpace];
                 // 得到当前是哪一个环境，获得对应环境下的代理对象
-                const proxyObj = nameSpaceApi[getCurrProxyApiOs(os)];
+                const proxyObj = nameSpaceApi[getCurrProxyApiOs(os)] || nameSpaceApi.h5;
                 
                 if (proxyObj) {
                     /**
@@ -176,7 +176,7 @@ export default function defineapiMixin(hybrid) {
                 // 如果存在这个os，并且合法，重新定义
                 proxysApis[finalNameSpace][osTmp] = newApiProxy;
                 oldProxyOsNotUse[osTmp] = true;
-            } else {
+            } else if (oldProxyNamespace[osTmp]) {
                 // 否则仍然使用老版本的代理
                 proxysApis[finalNameSpace][osTmp] = oldProxyNamespace[osTmp];
                 // api本身的os要添加这个环境，便于提示

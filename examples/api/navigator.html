@@ -1,0 +1,331 @@
+<!DOCTYPE html >
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="pragma" content="no-cache">
+        <meta http-equiv="cache-control" content="no-cache">
+        <meta http-equiv="expires" content="0">
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+        <title>navigator</title>
+        <link rel="stylesheet" href="../common/mui/mui.css" />
+        <link rel="stylesheet" href="../common/common.css" />
+    </head>
+
+    <body>
+
+        <div class="mui-content pt0">
+            <ul class="mui-table-view ">
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setTitle">setTitle(设置标题)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setTitle2">setTitle(设置子标题和点击)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setMultiTitle">setMultiTitle(设置多个标题)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="show">show(显示导航栏)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="hide">hide(隐藏导航栏)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="showStatusBar">showStatusBar(显示状态栏)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="hideStatusBar">hideStatusBar(隐藏状态栏)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="hideBackBtn">hideBackBtn(隐藏返回按钮)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="hookSysBack">hookSysBack(拦截系统返回)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="hookBackBtn">hookBackBtn(拦截左侧按钮返回)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn1">setRightBtn(设置右侧按钮1)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn11">setRightBtn(设置右侧图片按钮1)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn10">setRightBtn(隐藏右侧按钮1)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn2">setRightBtn(设置右侧按钮2)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn21">setRightBtn(设置右侧图片按钮2)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightBtn20">setRightBtn(隐藏右侧按钮2)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setLeftBtn">setLeftBtn(设置左侧按钮)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setLeftBtn1">setLeftBtn(设置左侧图片按钮)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setLeftBtn0">setLeftBtn(左侧带下拉箭头)</a>
+                </li>
+                <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="setRightMenu">setRightMenu(设置右侧下拉菜单按钮)</a>
+                </li>
+            </ul>
+        </div>
+        <script type="text/javascript" src="../common/mui/mui.js"></script>
+        <script type="text/javascript" src="../../dist/quick.js"></script>
+        <script type="text/javascript" src="../../dist/quick.native.js"></script>
+        <script type="text/javascript" src="../../dist/quick.h5.js"></script>
+        <script type="text/javascript" src="../common/common.js"></script>
+        <script>
+            window.runApi = function(id) {
+                console.log('执行API:' + id);
+
+                switch (id) {
+                    case 'setTitle':
+                        quick.navigator.setTitle({
+                            title: '测试标题',
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        // quick.navigator.setTitle('测试标题');
+                        break;
+                    case 'setTitle2':
+                        quick.navigator.setTitle({
+                            title: '测试标题',
+                            subTitle: '子标题',
+                            clickable: 1,
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setMultiTitle':
+                        quick.navigator.setMultiTitle({
+                            titles: ['标题1', '标题2'],
+                            success: function(result) {
+                                // 点击时的回调
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'show':
+                        quick.navigator.show({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'hide':
+                        quick.navigator.hide({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'showStatusBar':
+                        quick.navigator.showStatusBar({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'hideStatusBar':
+                        quick.navigator.hideStatusBar({
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'hookSysBack':
+                        quick.navigator.hookSysBack({
+                            success: function(result) {
+                                showTips('监听系统返回' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'hookBackBtn':
+                        quick.navigator.hookBackBtn({
+                            success: function(result) {
+                                showTips('监听导航栏返回' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn1':
+                        quick.navigator.setRightBtn({
+                            text: '按钮右1',
+                            which: 0,
+                            success: function(result) {
+                                showTips('点击按钮右1' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn11':
+                        quick.navigator.setRightBtn({
+                            imageUrl: 'http://app.epoint.com.cn/staticResource/testicon2.png',
+                            which: 0,
+                            success: function(result) {
+                                showTips('点击按钮右1图' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn10':
+                        quick.navigator.setRightBtn({
+                            isShow: 0,
+                            which: 0,
+                            success: function(result) {
+                                showTips('隐藏按钮右1成功' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn2':
+                        quick.navigator.setRightBtn({
+                            text: '按钮右2',
+                            which: 1,
+                            success: function(result) {
+                                showTips('点击按钮右2' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn21':
+                        quick.navigator.setRightBtn({
+                            imageUrl: 'http://app.epoint.com.cn/staticResource/testicon2.png',
+                            which: 1,
+                            success: function(result) {
+                                showTips('点击按钮右2图' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightBtn20':
+                        quick.navigator.setRightBtn({
+                            isShow: 0,
+                            which: 1,
+                            success: function(result) {
+                                showTips('隐藏按钮右2成功' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setLeftBtn':
+                        quick.navigator.setLeftBtn({
+                            text: '按钮左',
+                            success: function(result) {
+                                showTips('点击左侧按钮' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setLeftBtn1':
+                        quick.navigator.setLeftBtn({
+                            imageUrl: 'http://app.epoint.com.cn/staticResource/testicon2.png',
+                            success: function(result) {
+                                showTips('点击左侧按钮图' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setLeftBtn0':
+                        quick.navigator.setLeftBtn({
+                            text: '按钮左',
+                            isShowArrow: 1,
+                            success: function(result) {
+                                showTips('点击左侧按钮图' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'hideBackBtn':
+                        quick.navigator.hideBackBtn({
+                            success: function(result) {
+                                showTips('隐藏左侧按钮成功' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'setRightMenu':
+                        var iconSrc = 'http://app.epoint.com.cn/staticResource/img_head.png';
+
+                        quick.navigator.setRightMenu({
+                            text: '下拉',
+                            imageUrl: '',
+                            // 过滤色默认为空
+                            iconFilterColor: '',
+                            // 点击后出现的菜单列表，这个API会覆盖rightBtn
+                            titleItems: ['按钮1', '按纽2'],
+                            iconItems: [iconSrc, iconSrc],
+                            success: function(result) {
+                                showTips('点击左侧按钮图' + JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    default:
+                        console.error('错误！没有相应API');
+                }
+            };
+        </script>
+
+    </body>
+
+</html>

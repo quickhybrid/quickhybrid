@@ -40,6 +40,12 @@ gulp.task('build_main', () => walkByRollup([{
         }),
         babel({
             exclude: 'node_modules/**',
+            // rollup使用"transform-runtime"只能通过配置
+            // 可以将所有的垫片函数集成到一起，避免重复冗余
+            runtimeHelpers: true,
+            // 使用class时，external-helpers会莫名其妙引入asyncGenerator
+            // 而runtime不会
+            // plugins: ['external-helpers'],
         }),
     ],
     output: {
@@ -59,6 +65,7 @@ gulp.task('build_api', () => walkByRollup([{
         }),
         babel({
             exclude: 'node_modules/**',
+            runtimeHelpers: true,
         }),
     ],
     output: {
@@ -76,6 +83,7 @@ gulp.task('build_api', () => walkByRollup([{
         }),
         babel({
             exclude: 'node_modules/**',
+            runtimeHelpers: true,
         }),
     ],
     output: {

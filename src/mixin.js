@@ -15,7 +15,7 @@ export default function mixin(hybrid) {
     osMixin(hybridJs);
     promiseMixin(hybridJs);
     errorMixin(hybridJs);
-    // 不依赖于promise，但是是否有Promise决定返回promise对象还是普通函数
+    // 赖于promise，是否有Promise决定返回promise对象还是普通函数
     proxyMixin(hybridJs);
     // 依赖于showError，globalError，os
     jsbridgeMixin(hybridJs);

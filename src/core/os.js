@@ -36,13 +36,6 @@ export default function osMixin(hybrid) {
         if (quick) {
             this.os.quick = true;
         }
-        
-        // epoint的容器
-        const ejs = ua.match(/EpointEJS/i);
-
-        if (ejs) {
-            this.os.ejs = true;
-        }
 
         const dd = ua.match(/DingTalk/i);
 
@@ -50,8 +43,8 @@ export default function osMixin(hybrid) {
             this.os.dd = true;
         }
 
-        // 如果ejs和钉钉以及quick都不是，则默认为h5
-        if (!ejs && !dd && !quick) {
+        // 如果钉钉以及quick都不是，则默认为h5
+        if (!dd && !quick) {
             this.os.h5 = true;
         }
     };
