@@ -16,14 +16,14 @@
 
         <div class="mui-content pt0">
             <ul class="mui-table-view ">
-                <li class="mui-table-view-cell">
+                <li class="mui-table-view-cell hidden">
                     <a class="mui-navigate-right api-class" id="alert">alert(调用不需授权的API)</a>
                 </li>
-                <li class="mui-table-view-cell">
-                    <a class="mui-navigate-right api-class" id="getDeviceId">getDeviceId(调用需授权的API)</a>
+                <li class="mui-table-view-cell hidden">
+                    <a class="mui-navigate-right api-class" id="getToken">getToken(调用需授权的API)</a>
                 </li>
                 <li class="mui-table-view-cell">
-                    <a class="mui-navigate-right api-class" id="callapi">callapi(调用组件API)</a>
+                    <a class="mui-navigate-right api-class" id="testPay">testPay(调用支付组件API)</a>
                 </li>
             </ul>
         </div>
@@ -37,7 +37,7 @@
                alert('错误:' + JSON.stringify(message));
             });
             quick.config({
-                
+                jsApiList: ['pay'],
             });
             quick.ready(function() {
                showTips('注册成功');
@@ -49,8 +49,8 @@
                     case 'alert':
                         quick.ui.alert('hello');
                         break;
-                    case 'getDeviceId':
-                        quick.device.getDeviceId({
+                    case 'getToken':
+                        quick.auth.getToken({
                             success: function(result) {
                                 showTips(JSON.stringify(result));
                             },
@@ -59,13 +59,10 @@
                             }
                         });
                         break;
-                    case 'callapi':
+                    case 'testPay':
                         quick.callApi({
-                            name: "alert",
-                            mudule: 'ui',
-                            data: {
-                                message: "hello",
-                            },
+                            name: 'testPay', // 例如 alert（仅举例）
+                            mudule: 'pay', // 例如 ui（仅举例）
                             success: function(result) {
                                 showTips(JSON.stringify(result));
                             },
