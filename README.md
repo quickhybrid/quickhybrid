@@ -1,12 +1,31 @@
 # quickhybrid
 
-快速混合开发框架，一套JS Api，Android，iOS，浏览器环境同时运行
+快速混合开发框架，JSBridge提供核心Android、iOS功能。多平台API支撑，部分兼容浏览器
 
+包括三大部分：
 
-目前这个项目先上传前端JS部分
+- JS（前端）
+
+- Android原生
+
+- iOS原生
+
+## JS（前端）
+
+大致实现内容
 
 ```js
 ES6 + Rollup + Eslint + Karma + Mocha
 ```
 
-后续再补上整个架构，文档以及其它部分
+## Android原生
+
+参考：
+
+[quickhybrid-android](https://github.com/quickhybrid/quickhybrid-android)
+
+## iOS原生
+
+参考：
+
+[quickhybrid-ios](https://github.com/quickhybrid/quickhybrid-ios)
