@@ -1,0 +1,309 @@
+﻿<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+        <title>QuickAPI控制台</title>
+        <link rel="stylesheet" href="../common/mui/mui.css" />
+        <link rel="stylesheet" href="codemirror/codemirror.css" />
+        <link rel="stylesheet" href="common.css" />
+        <style>
+            #code {
+                float: left;
+                min-height: 1px;
+                padding: 15px;
+            }
+            
+            #clients-info {
+                float: right;
+                min-height: 1px;
+                padding-right: 15px;
+                padding-left: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="main">
+            <div class="panel panel-primary">
+                <div id="panel-heading" class="panel-heading">
+                    <h2 class="panel-title">Quick JS-API实时控制台</h2>
+                    <h5 id="status"></h5>
+                    <h5>Quick容器扫码加载</h5>
+                </div>
+                <div class="panel-body">
+                    <div id="code" class="mui-col-xs-3"></div>
+                    <div id="clients-info" class="mui-col-xs-9"></div>
+                    <button id="btn-pull" class="mui-btn mui-btn-block hidden">拉取数据</button>
+                    <button id="btn-save" class="mui-btn mui-btn-block">缓存数据</button>
+                    <button id="btn-clearcache" class="mui-btn mui-btn-block">清除缓存</button>
+                    <button id="btn-reload" class="mui-btn mui-btn-block hidden">重载页面</button>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div id="panel-heading" class="panel-heading">
+                    <h3 class="panel-title">组件注册区域</h3>
+                </div>
+                <div class="panel-body">
+                    <textarea id="testcoderegister">
+quick.error(function(error) {
+    quick.ui.alert(JSON.stringify(error));
+});
+
+// 如果需要多次config，需要重载页面
+quick.config({
+    jsApiList: ['pay']
+});
+quick.ready(initPage);
+
+function initPage() {
+    quick.ui.alert('注册成功');
+}                
+                    </textarea>
+                    <button id="btn_dispatch1" class="mui-btn mui-btn-block ">执行</button>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div id="panel-heading" class="panel-heading">
+                    <h3 class="panel-title">API执行区域</h3>
+                </div>
+                <div class="panel-body">
+                    <textarea id="testcodejs">
+quick.ui.toast('测试');                        
+// 注意⚠️callApi只会执行quick环境下的功能
+quick.callApi({
+    name: "confirm",
+    mudule: 'ui',
+    data: {
+        title: '标题',
+        message: '测试alert',
+        buttonLabels: ['取消', '确定'],
+    },
+    success: function(result) {
+        quick.ui.toast(JSON.stringify(result));
+    },
+    error: function(error) {
+        quick.ui.toast('失败:' + JSON.stringify(error));
+    }
+});
+                    </textarea>
+                    <button id="btn_dispatch2" class="mui-btn mui-btn-block ">执行</button>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div id="panel-heading" class="panel-heading">
+                    <h3 class="panel-title">执行状态</h3>
+                </div>
+                <div class="panel-body">
+                    <button id="btn_clear_tips" class="mui-btn mui-btn-block ">清空</button>
+                    <div id="tips"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <script type="text/javascript" src="../common/mui/mui.js"></script>
+        <script type="text/javascript" src="codemirror/codemirror.js"></script>
+        <script type="text/javascript" src="codemirror/mode/javascript.js"></script>
+        <script type="text/javascript" src="socket.io.js"></script>
+        <script type="text/javascript" src="qrcode.js"></script>
+        <script type="text/javascript" src="./util.js" ></script>
+        <script>
+            var CLIENT_ADDRESS = 'debugclient.html';
+            var socket;
+            var clientInfoDom = document.getElementById('clients-info');
+            var tipsDom = document.getElementById('tips');
+            var statusDom = document.getElementById('status');
+            var codeRegister;
+            var codeJs;
+            var roomId = Util.getExtraDataByKey('roomid') || Util.uuid();
+            var qrcode;
+
+            init();
+
+            function init() {
+                qrcode = new QRCode(document.getElementById("code"), {
+                    width: 260,
+                    height: 260,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    // L M Q H
+                    correctLevel: QRCode.CorrectLevel.H,
+                });
+                codeRegister = CodeMirror.fromTextArea(document.getElementById("testcoderegister"), {
+                    lineNumbers: true,
+                    //实现代码高亮
+                    mode: "javascript"
+                });
+                codeJs = CodeMirror.fromTextArea(document.getElementById("testcodejs"), {
+                    lineNumbers: true,
+                    //实现代码高亮
+                    mode: "javascript"
+                });
+
+                pull();
+                generateQRCode();
+                initListeners();
+                connectSocket();
+            }
+
+            function generateQRCode() {
+                var url = window.location.href;
+
+                // 替换为对于的页面
+                url = url.replace(/[^/]+[.]html/, CLIENT_ADDRESS);
+                url = url.replace(/roomid[=][^=&]*&/, '');
+                url += /[?]/.test(url) ? ('&roomid=' + roomId) : ('?roomid=' + roomId);
+
+                qrcode.makeCode(url);
+
+                var html = '<li class="list-group-item"><a href="' + url + '">' + url + '</a></li>';
+
+                showMessage('客户端地址：' + html, true, true)
+            }
+
+            function initListeners() {
+
+                mui('#clients-info').on('tap', 'a', function() {
+                    window.open(this.getAttribute('href'));
+                });
+                mui('.panel-body').on('tap', '#btn-clearcache', function() {
+                    localStorage.clear();
+                    alert('清除缓存成功');
+                });
+                mui('.panel-body').on('tap', '#btn-save', function() {
+                    save();
+                });
+                mui('.panel-body').on('tap', '#btn-pull', function() {
+                    pull();
+                });
+                mui('.panel-body').on('tap', '#btn-reload', function() {
+                    reload();
+                });
+                mui('.panel-body').on('tap', '#btn_clear_tips', function() {
+                    tipsDom.innerHTML = '';
+                });
+
+                mui('.panel-body').on('click', '#btn_dispatch1', function() {
+                    var register = codeRegister.getValue();
+
+                    dispatchData({
+                        message: register,
+                        roomId: roomId,
+                    });
+                });
+
+                mui('.panel-body').on('click', '#btn_dispatch2', function() {
+                    var js = codeJs.getValue();
+
+                    dispatchData({
+                        message: js,
+                        roomId: roomId,
+                    });
+                });
+
+            }
+
+            function dispatchData(data) {
+                socket.emit('dispatch data', data, function(data) {
+                    if (data.code) {
+                        showMessage('分发成功:' + data.message);
+                    } else {
+                        showMessage('分发失败:' + data.message);
+                    }
+                });
+            }
+
+            function connectSocket() {
+                // socket = io.connect('http://'+ window.location.hostname + ':8100');
+                socket = io.connect('http://115.29.151.25:8100');
+
+                socket.on('open', function(data) {
+                    statusDom.innerText = data.time + '连接成功';
+                    createRoom(roomId);
+                });
+
+                socket.on('client created', function(data) {
+                    showMessage(data.time + ' 客户端（' + data.clientId + '）加入，客户端数：' + data.clientCount, true);
+                });
+
+                socket.on('client destroy', function(data) {
+                    showMessage(data.time + ' 客户端（' + data.clientId + '）退出，客户端数：' + data.clientCount, true);
+                });
+
+                socket.on('client excuted', function(data) {
+                    if (data.code) {
+                        showMessage('客户端（' + data.clientId + ')成功执行一次');
+                    } else {
+                        showMessage('客户端（' + data.clientId + ')执行失败一次，' + data.message);
+                    }
+                });
+
+                socket.on('disconnect', () => {
+                    // 失联
+                    socket = undefined;
+                    statusDom.innerText = (new Date()).toLocaleString() + '和服务端失去联系';
+                });
+            }
+
+            function createRoom(roomId) {
+                // 创建房间，如果不符合要求需要提示错误
+                socket.emit('create room', roomId, function(data) {
+                    if (data.code) {
+                        showMessage(roomId + '创建成功');
+                    } else {
+                        showMessage(roomId + '创建失败：' + data.message);
+                        closeSocket();
+                    }
+                });
+            }
+
+            function closeSocket() {
+                socket && socket.close();
+                // socket.disconnect();
+            }
+
+            function showMessage(msg, isClientInfo, isClear) {
+                var html = '<li class="list-group-item">' + msg + '</li>';
+
+                if (isClientInfo) {
+                    isClear && (clientInfoDom.innerHTML = '');
+                    clientInfoDom.innerHTML += html;
+                } else {
+                    isClear && (tipsDom.innerHTML = '');
+                    tipsDom.innerHTML += html;
+                }
+
+                console.log(msg);
+            }
+
+            function save() {
+                var js = codeJs.getValue();
+                var register = codeRegister.getValue();
+
+                localStorage.setItem('quick_key_validate_code_3', js);
+                localStorage.setItem('quick_key_validate_registerer_3', register);
+                console.log('保存成功');
+            }
+
+            function pull() {
+
+                var js = localStorage.getItem('quick_key_validate_code_3') || codeJs.getValue();
+                var register = localStorage.getItem('quick_key_validate_registerer_3') || codeRegister.getValue();
+
+                codeJs.setValue(js);
+                codeRegister.setValue(register);
+                console.log('拉取成功');
+            }
+
+            function reload() {
+                window.location.reload();
+            }
+        </script>
+    </body>
+
+</html>

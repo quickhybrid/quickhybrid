@@ -20,6 +20,9 @@
                     <a class="mui-navigate-right api-class" id="open">open(打开新页面)</a>
                 </li>
                 <li class="mui-table-view-cell">
+                    <a class="mui-navigate-right api-class" id="open2">open(style为-1)</a>
+                </li>
+                <li class="mui-table-view-cell">
                     <a class="mui-navigate-right api-class" id="openLocal">openLocal(打开特定原生页面)</a>
                 </li>
                 <li class="mui-table-view-cell">
@@ -49,6 +52,25 @@
                             pageTitle: '测试页面标题',
                             // 横竖屏,默认为1表示竖屏
                             orientation: '1',
+                            // 额外数据
+                            data: {
+                                key1: 'value1'
+                            },
+                            success: function(result) {
+                                showTips(JSON.stringify(result));
+                            },
+                            error: function(error) {
+                                showTips('失败:' + JSON.stringify(error));
+                            }
+                        });
+                        break;
+                    case 'open2':
+                        quick.page.open({
+                            pageUrl: "../simple.html",
+                            pageTitle: '测试页面标题',
+                            // 横竖屏,默认为1表示竖屏
+                            orientation: '1',
+                            pageStyle: -1,
                             // 额外数据
                             data: {
                                 key1: 'value1'

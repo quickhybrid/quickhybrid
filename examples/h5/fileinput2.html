@@ -1,0 +1,70 @@
+<!-- 
+        作者：戴荔春
+        创建时间: 2017/07/11
+        版本: [1.0, 2017/07/11 ]
+        版权: 江苏国泰新点软件有限公司
+        描述： H5 的 File Input 组件
+-->
+<!DOCTYPE html >
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+        <meta name="format-detection" content="telephone=no, address=no, email=no">
+        <title>File Input</title>
+    </head>
+
+    <body>
+        <!-- type和accept默认写到了HTML中，也可以由JS传入 -->
+        <input type="file" class="fileChoose" id="showFileChoose_image" filetype="Image" />
+        <input type="file" class="fileChoose" id="showFileChoose_camera" filetype="Camera" />
+        <input type="file" class="fileChoose" id="showFileChoose_file" filetype="File" />
+        <input type="file" class="fileChoose" id="showFileChoose_image_camera" filetype="Image_Camera" />
+        <input type="file" class="fileChoose" id="showFileChoose_image_file" filetype="Image_File" />
+        <input type="file" class="fileChoose" id="showFileChoose_camera_file" filetype="Camera_File" />
+        <input type="file" class="fileChoose" id="showFileChoose_all" filetype="All" />
+        <input type="file" class="fileChoose" id="showFileChoose_default">
+        <img id="showImg" />
+
+        <script src="fileinput.js"></script>
+        <script>
+            "use strict";
+
+            initPage();
+
+            /**
+             * 页面初始化请走这个函数
+             */
+            function initPage() {
+                var showImg = document.getElementById('showImg');
+                var fileArray = document.querySelectorAll('.fileChoose');
+                // fileArray是htmlCollection或者NodeList 但不是Array
+                if (fileArray) {
+                    for (var i = 0, len = fileArray.length; i < len; i++) {
+                        new FileInput({
+                            container: fileArray[i],
+                            isMulti: false,
+                            type: fileArray[i].getAttribute('filetype') || 'All',
+                            success: function(b64, file, detail) {
+                                if (/.jpg|.png|.gif/.test(file.name)) {
+                                    console.log("选择:" + b64);
+                                    console.log("fileName:" + file.name);
+                                    showImg.setAttribute('src', b64);
+                                } else {
+                                    alert('文件名：' + file.name);
+                                }
+                                
+                            },
+                            error: function(error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                }
+
+            }
+        </script>
+    </body>
+
+</html>
